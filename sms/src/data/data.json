@@ -1,0 +1,38 @@
+[
+  {
+    "id": "1",
+    "unique_id": "STU001",
+    "course": "Math 101",
+    "student": {
+      "id": "S001",
+      "firstname": "Jean",
+      "lastname": "Dupont"
+    },
+    "date": "2025-01-15",
+    "grade": 85
+  },
+  {
+    "id": "2",
+    "unique_id": "STU002",
+    "course": "Physics 505",
+    "student": {
+      "id": "S002",
+      "firstname": "Marie",
+      "lastname": "Martin"
+    },
+    "date": "2025-01-16",
+    "grade": 92
+  },
+  {
+    "id": "3",
+    "unique_id": "STU003",
+    "course": "Chemistry 606",
+    "student": {
+      "id": "S003",
+      "firstname": "Pierre",
+      "lastname": "Bernard"
+    },
+    "date": "2025-01-17",
+    "grade": 78
+  }
+]

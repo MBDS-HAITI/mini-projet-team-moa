@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { useUsers } from '../../hooks/useAPI';
+import { useEffect, useState } from 'react';
+import { useUsers } from '../../hooks/useApi';
 import apiClient from '../../api/apiClient';
 
 function Users() {
   const { data: users, loading, error } = useUsers();
+  const [localUsers, setLocalUsers] = useState([]);
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -12,14 +13,31 @@ function Users() {
     username: '',
     email: '',
     password: '',
-    role: 'Étudiant'
+    role: 'student'
   });
   const [formError, setFormError] = useState('');
   const [formLoading, setFormLoading] = useState(false);
 
+  const roleLabels = {
+    admin: 'Admin',
+    teacher: 'Scolarité',
+    student: 'Étudiant'
+  };
+
+  useEffect(() => {
+    setLocalUsers(users || []);
+  }, [users]);
+
+  const normalizeUser = (user) => ({
+    id: user.id || user._id,
+    username: user.username,
+    email: user.email,
+    role: user.role
+  });
+
   const itemsPerPage = 10;
 
-  const filtered = users.filter(user =>
+  const filtered = localUsers.filter(user =>
     user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.role.toLowerCase().includes(searchTerm.toLowerCase())
@@ -46,7 +64,7 @@ function Users() {
         username: '',
         email: '',
         password: '',
-        role: 'Étudiant'
+        role: 'student'
       });
     }
     setFormError('');
@@ -56,7 +74,7 @@ function Users() {
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingUser(null);
-    setFormData({ username: '', email: '', password: '', role: 'Étudiant' });
+    setFormData({ username: '', email: '', password: '', role: 'student' });
     setFormError('');
   };
 
@@ -76,7 +94,8 @@ function Users() {
         if (formData.password) {
           updateData.password = formData.password;
         }
-        await apiClient.updateUser(editingUser.id, updateData);
+        const updated = await apiClient.updateUser(editingUser.id, updateData);
+        setLocalUsers((prev) => prev.map((u) => (u.id === editingUser.id ? normalizeUser(updated) : u)));
       } else {
         // Create user
         if (!formData.password) {
@@ -84,11 +103,11 @@ function Users() {
           setFormLoading(false);
           return;
         }
-        await apiClient.createUser(formData);
+        const created = await apiClient.createUser(formData);
+        setLocalUsers((prev) => [...prev, normalizeUser(created)]);
       }
       
       handleCloseModal();
-      window.location.reload(); // Refresh to get updated data
     } catch (err) {
       setFormError(err.message || 'Une erreur est survenue');
     } finally {
@@ -103,7 +122,7 @@ function Users() {
 
     try {
       await apiClient.deleteUser(userId);
-      window.location.reload(); // Refresh to get updated data
+      setLocalUsers((prev) => prev.filter((u) => u.id !== userId));
     } catch (err) {
       alert(err.message || 'Erreur lors de la suppression');
     }
@@ -185,13 +204,13 @@ function Users() {
                     fontSize: 14,
                     fontWeight: 600,
                     backgroundColor:
-                      user.role === 'Admin' ? '#ef4444' :
-                      user.role === 'Scolarité' ? '#3b82f6' :
+                      user.role === 'admin' ? '#ef4444' :
+                      user.role === 'teacher' ? '#3b82f6' :
                       '#10b981',
                     color: 'white'
                   }}
                 >
-                  {user.role}
+                  {roleLabels[user.role] || user.role}
                 </span>
               </td>
               <td style={{ padding: 12, textAlign: 'center' }}>
@@ -355,9 +374,9 @@ function Users() {
                     fontSize: 16
                   }}
                 >
-                  <option value="Étudiant">Étudiant</option>
-                  <option value="Scolarité">Scolarité</option>
-                  <option value="Admin">Admin</option>
+                  <option value="student">Étudiant</option>
+                  <option value="teacher">Scolarité</option>
+                  <option value="admin">Admin</option>
                 </select>
               </div>
 

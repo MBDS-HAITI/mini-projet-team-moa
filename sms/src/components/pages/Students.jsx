@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useStudents } from '../../hooks/useAPI';
+import { useStudents } from '../../hooks/useApi';
 
 export default function Students() {
   const [page, setPage] = useState(1);

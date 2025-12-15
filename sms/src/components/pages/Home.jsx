@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useStudents, useCourses, useGrades, useUsers } from '../../hooks/useAPI';
+import { useStudents, useCourses, useGrades, useUsers } from '../../hooks/useApi';
 import { useAuth } from '../../context/AuthContext';
 
 function StatCard({ label, value, hint, accent }) {
@@ -29,12 +29,12 @@ function QuickAction({ title, description, action, icon, bg }) {
 export default function Home() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const role = user?.role || 'Étudiant';
+  const role = user?.role || 'student';
 
-  const canManageUsers = role === 'Admin';
-  const canManageStudents = role === 'Admin' || role === 'Scolarité';
-  const canManageCourses = role === 'Admin' || role === 'Scolarité';
-  const canManageGrades = role === 'Admin' || role === 'Scolarité' || role === 'Étudiant';
+  const canManageUsers = role === 'admin';
+  const canManageStudents = role === 'admin' || role === 'teacher';
+  const canManageCourses = role === 'admin' || role === 'teacher';
+  const canManageGrades = role === 'admin' || role === 'teacher' || role === 'student';
 
   const { data: students } = useStudents();
   const { data: courses } = useCourses();

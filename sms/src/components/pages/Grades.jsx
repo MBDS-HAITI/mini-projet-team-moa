@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useGrades } from '../../hooks/useAPI';
+import { useGrades } from '../../hooks/useApi';
 
 export default function Grades() {
   const [page, setPage] = useState(1);
