@@ -6,7 +6,7 @@ import About from "./pages/About.jsx";
 import Users from "./pages/Users.jsx";
 import Home from "./pages/Home.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
-import Login from "./Login.jsx";
+import Login from "./login.jsx";
 import ProtectedRoute from "./ProtectedRoute";
 
 function ContentRouter() {
