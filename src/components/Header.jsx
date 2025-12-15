@@ -1,12 +1,20 @@
-import { useState } from "react";
-import{ NavLink } from "react-router-dom";
-import {MenuItems} from "../data/MenuItems";
-import "./Header.css";
-
+import { useState } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { menuItems } from '../config/menuConfig';
+import { useAuth } from '../context/AuthContext';
+import './Header.css';
 
 export default function Header() {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-   return (
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isAuthenticated, logout, user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  return (
     <header className="Header">
       <div className="header-container">
         <div className="brand">
@@ -43,6 +51,17 @@ export default function Header() {
               </li>
             ))}
           </ul>
+          
+          {isAuthenticated && (
+            <div className="user-section">
+              <span className="user-info">
+                {user?.username} {user?.role && `(${user.role})`}
+              </span>
+              <button className="logout-btn" onClick={handleLogout}>
+                🚪 Déconnexion
+              </button>
+            </div>
+          )}
         </nav>
       </div>
     </header>
