@@ -15,7 +15,17 @@ const auth = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret');
-    req.user = decoded;
+    
+    // Normaliser le rôle et gérer la rétrocompatibilité: teacher -> scolarite
+    let role = (decoded.role || '').toLowerCase();
+    if (role === 'teacher') {
+      role = 'scolarite';
+    }
+    
+    req.user = {
+      id: decoded.userId,
+      role: role
+    };
     req.userId = decoded.userId;
     next();
   } catch (error) {

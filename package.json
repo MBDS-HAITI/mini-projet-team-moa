@@ -1,4 +1,3 @@
-
 {
   "name": "mini-projet-team-moa",
   "private": true,
@@ -9,5 +8,8 @@
   },
   "devDependencies": {
     "concurrently": "^9.2.1"
+  },
+  "dependencies": {
+    "mongoose": "^9.0.2"
   }
 }
