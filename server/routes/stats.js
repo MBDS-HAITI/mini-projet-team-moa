@@ -84,10 +84,10 @@ router.get('/', async (req, res) => {
       };
     } else if (role === 'student') {
       // Étudiant: vision sur son dossier uniquement
-      const user = await User.findById(req.userId).lean();
+      const user = await User.findById(req.user.id).lean();
       const student = await Student.findOne({
         $or: [
-          { userId: req.userId },
+          { userId: req.user.id },
           { email: user?.email }
         ]
       }).lean();
