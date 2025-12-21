@@ -16,7 +16,7 @@ export default function Login() {
 
         try {
             await login(email, password);
-            navigate("/grades");
+            navigate("/home");
         } catch (err) {
             setError(err.message || "Invalid email or password");
         }

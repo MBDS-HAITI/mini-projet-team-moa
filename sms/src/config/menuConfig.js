@@ -8,10 +8,18 @@ export const menuItems = [
     path: '/home'
   },
   {
+    id: 'dashboard',
+    label: 'Dashboard',
+    description: 'Statistics',
+    icon: '📊',
+    color: '#10b981',
+    path: '/dashboard'
+  },
+  {
     id: 'grades',
     label: 'Grades',
     description: 'View grades',
-    icon: '📊',
+    icon: '📝',
     color: '#3b82f6',
     path: '/grades'
   },

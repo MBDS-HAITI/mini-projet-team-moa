@@ -22,6 +22,23 @@ const apiClient = {
     }
     return res.json();
   },
+
+  // Statistics
+  async getStats() {
+    const res = await fetch(`${API_BASE_URL}/stats`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader()
+      }
+    });
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({}));
+      throw new Error(error.error || 'Failed to fetch statistics');
+    }
+    return res.json();
+  },
+
   // Grades
   async getGrades() {
     const res = await fetch(`${API_BASE_URL}/grades`, {
