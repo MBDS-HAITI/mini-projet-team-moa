@@ -30,7 +30,8 @@ const apiClient = {
       headers: {
         'Content-Type': 'application/json',
         ...getAuthHeader()
-      }
+      },
+      cache: 'no-store'
     });
     if (!res.ok) {
       const error = await res.json().catch(() => ({}));
