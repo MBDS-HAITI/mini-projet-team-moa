@@ -24,40 +24,77 @@ export default function Login() {
 
     return (
         <div className="login-page">
-            <div className="login-card">
-                <h2>🔐 Login</h2>
-                {error && (
-                    <div className="error">
-                        {error}
+            <div className="login-container">
+                <div className="login-card">
+                    <div className="login-header">
+                        <div className="logo-section">
+                            <img src="/logoMBDS.png" alt="Logo MBDS" className="login-logo" />
+                        </div>
+                        <h2>Connexion</h2>
+                        <p>Accédez à votre compte</p>
                     </div>
-                )}
+                    
+                    {error && (
+                        <div className="error-message">
+                            <span className="error-icon">⚠️</span>
+                            {error}
+                        </div>
+                    )}
 
-                <form onSubmit={handleSubmit}>
-                    <div>
-                        <label>Email</label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
+                    <form onSubmit={handleSubmit} className="login-form">
+                        <div className="input-group">
+                            <label htmlFor="email">Adresse email</label>
+                            <div className="input-wrapper">
+                                <span className="input-icon">📧</span>
+                                <input
+                                    id="email"
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="votre.email@exemple.com"
+                                    required
+                                />
+                            </div>
+                        </div>
+                        
+                        <div className="input-group">
+                            <label htmlFor="password">Mot de passe</label>
+                            <div className="input-wrapper">
+                                <span className="input-icon">🔒</span>
+                                <input
+                                    id="password"
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="Votre mot de passe"
+                                    required
+                                />
+                            </div>
+                        </div>
+                        
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="login-button"
+                        >
+                            {loading ? (
+                                <>
+                                    <span className="loading-spinner"></span>
+                                    Connexion en cours...
+                                </>
+                            ) : (
+                                <>
+                                    <span className="button-icon">🚀</span>
+                                    Se connecter
+                                </>
+                            )}
+                        </button>
+                    </form>
+                    
+                    <div className="login-footer">
+                        <p>Plateforme de Gestion Académique MBDS</p>
                     </div>
-                    <div>
-                        <label>Password</label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <button
-                        type="submit"
-                        disabled={loading}
-                    >
-                        {loading ? 'Logging in...' : 'Login'}
-                    </button>
-                </form>
+                </div>
             </div>
         </div>
     );
