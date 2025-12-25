@@ -47,9 +47,11 @@ router.post('/', authorize('admin', 'scolarite'), async (req, res) => {
   try {
     const { student, course, grade, date } = req.body;
     const created = await Grade.create({ student, course, grade, date });
-    const populated = await created
+
+    const populated = await Grade.findById(created._id)
       .populate('student', 'firstName lastName email')
       .populate('course', 'name code');
+      
     res.status(201).json(populated);
   } catch (error) {
     res.status(400).json({ error: error.message || 'Unable to create grade' });
