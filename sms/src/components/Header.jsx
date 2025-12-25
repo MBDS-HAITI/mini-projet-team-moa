@@ -59,12 +59,22 @@ export default function Header() {
   };
 
   const getUserInitials = () => {
-    if (!user?.username) return 'U';
-    const names = user.username.split(' ');
+    const displayName = user?.username || user?.email || 'User';
+    if (displayName === 'na' || displayName === 'User') {
+      return user?.email ? user.email.substring(0, 2).toUpperCase() : 'U';
+    }
+    const names = displayName.split(' ');
     if (names.length >= 2) {
       return `${names[0][0]}${names[1][0]}`.toUpperCase();
     }
-    return user.username.substring(0, 2).toUpperCase();
+    return displayName.substring(0, 2).toUpperCase();
+  };
+
+  const getUserDisplayName = () => {
+    if (user?.username && user.username !== 'na') {
+      return user.username;
+    }
+    return user?.email?.split('@')[0] || 'Utilisateur';
   };
 
   return (
@@ -169,7 +179,13 @@ export default function Header() {
         {/* Navigation */}
         <nav className={`nav ${isMenuOpen ? 'open' : ''}`} style={{ backgroundColor: muiTheme.palette.background.paper }}>
           <ul className="nav-list">
-            {menuItems.map((item) => (
+            {menuItems.filter(item => {
+              // Filtrer les items par rôle si un rôle est défini
+              if (item.roles && item.roles.length > 0) {
+                return isAuthenticated && user?.role && item.roles.includes(user.role.toLowerCase());
+              }
+              return true; // Afficher les items sans restriction de rôle
+            }).map((item) => (
               <li key={item.id} className="nav-item">
                 <NavLink
                   to={item.path}
@@ -198,7 +214,7 @@ export default function Header() {
             {isAuthenticated ? (
               <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                 {/* Menu utilisateur avec Avatar */}
-                <Tooltip title={user?.username || 'Profil'}>
+                <Tooltip title={getUserDisplayName()}>
                   <IconButton
                     onClick={handleSettingsClick}
                     sx={{
@@ -280,7 +296,7 @@ export default function Header() {
                       </Avatar>
                       <Box sx={{ flex: 1 }}>
                         <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 0.5 }}>
-                          {user?.username}
+                          {getUserDisplayName()}
                         </Typography>
                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
                           {user?.email || 'utilisateur@example.com'}

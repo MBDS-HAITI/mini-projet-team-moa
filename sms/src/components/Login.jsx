@@ -8,7 +8,7 @@ export default function Login() {
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
     const navigate = useNavigate();
-    const { login, loading } = useAuth();
+    const { login, loginWithOAuth, loading } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -90,6 +90,33 @@ export default function Login() {
                             )}
                         </button>
                     </form>
+
+                    <div style={{ margin: '20px 0', textAlign: 'center', position: 'relative' }}>
+                        <div style={{ borderTop: '1px solid #e0e0e0' }}></div>
+                        <span style={{ 
+                            position: 'absolute', 
+                            top: '-12px', 
+                            left: '50%', 
+                            transform: 'translateX(-50%)',
+                            background: 'white',
+                            padding: '0 10px',
+                            color: '#999'
+                        }}>OU</span>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={loginWithOAuth}
+                        disabled={loading}
+                        className="login-button"
+                        style={{
+                            background: '#4285f4',
+                            marginBottom: '15px'
+                        }}
+                    >
+                        <span className="button-icon">🔐</span>
+                        Se connecter avec OAuth 2.0
+                    </button>
                     
                     <div className="login-footer">
                         <p>Plateforme de Gestion Académique MBDS</p>

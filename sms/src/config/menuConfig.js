@@ -45,7 +45,8 @@ export const menuItems = [
     description: 'Manage users',
     icon: '👤',
     color: '#f59e0b',
-    path: '/users'
+    path: '/users',
+    roles: ['admin'] // Visible uniquement pour les admins
   },
   {
     id: 'about',

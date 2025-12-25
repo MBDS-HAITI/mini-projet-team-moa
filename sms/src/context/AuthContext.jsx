@@ -1,19 +1,26 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8010/api";
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
+  const navigate = useNavigate();
+  const [authToken, setAuthToken] = useState(null);
+  const [oauthToken, setOAuthToken] = useState(null);
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const savedToken = localStorage.getItem("authToken");
-    const savedUser = localStorage.getItem("user");
+    const storedToken = localStorage.getItem("authToken");
+    const storedUser = localStorage.getItem("user");
+    const storedOAuth = localStorage.getItem("oauthToken");
 
-    if (savedToken) setToken(savedToken);
-    if (savedUser) setUser(JSON.parse(savedUser));
+    if (storedToken && storedUser) {
+      setAuthToken(storedToken);
+      setUser(JSON.parse(storedUser));
+      if (storedOAuth) setOAuthToken(storedOAuth);
+    }
   }, []);
 
   const login = async (email, password) => {
@@ -43,7 +50,7 @@ export const AuthProvider = ({ children }) => {
         throw new Error("Token manquant dans la réponse du serveur.");
       }
 
-      setToken(authToken);
+      setAuthToken(authToken);
       setUser(normalizedUser);
       localStorage.setItem("authToken", authToken);
       localStorage.setItem("user", JSON.stringify(normalizedUser));
@@ -52,21 +59,52 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const loginWithOAuth = () => {
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8010/api';
+    window.location.href = `${apiUrl}/users/oauth/login`;
+  };
+
+  const handleOAuthCallback = (token, oauthAccessToken) => {
+    localStorage.setItem("authToken", token);
+    localStorage.setItem("oauthToken", oauthAccessToken);
+    setAuthToken(token);
+    setOAuthToken(oauthAccessToken);
+    
+    // Décoder le JWT pour récupérer les infos user
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const userData = { 
+      id: payload.userId, 
+      role: payload.role,
+      username: payload.username,
+      email: payload.email
+    };
+    localStorage.setItem("user", JSON.stringify(userData));
+    setUser(userData);
+    
+    navigate("/");
+  };
+
   const logout = () => {
-    setToken(null);
+    setAuthToken(null);
+    setOAuthToken(null);
     setUser(null);
     localStorage.removeItem("authToken");
+    localStorage.removeItem("oauthToken");
     localStorage.removeItem("user");
+    navigate("/");
   };
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        token,
-        isAuthenticated: !!token,
+        authToken,
+        oauthToken,
+        isAuthenticated: !!authToken,
         loading,
         login,
+        loginWithOAuth,
+        handleOAuthCallback,
         logout
       }}
     >

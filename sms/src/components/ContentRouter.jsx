@@ -6,6 +6,8 @@ import About from "./pages/About.jsx";
 import Users from "./pages/Users.jsx";
 import Home from "./pages/Home.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import Settings from "./pages/Settings.jsx";
+import OAuthCallback from "./OAuthCallback.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import Login from "./Login.jsx";
 import ProtectedRoute from "./ProtectedRoute";
@@ -16,6 +18,7 @@ function ContentRouter() {
   return (
     <Routes>
       <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/home" />} />
+      <Route path="/auth/callback" element={<OAuthCallback />} />
       
       <Route path="/" element={<Navigate to={isAuthenticated ? "/home" : "/login"} />} />
       
@@ -25,6 +28,7 @@ function ContentRouter() {
       <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
       <Route path="/grades" element={<ProtectedRoute><Grades /></ProtectedRoute>} />
       <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
+      <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
       <Route path="/about" element={<ProtectedRoute><About /></ProtectedRoute>} />
       
       <Route path="*" element={<Navigate to="/" />} />
