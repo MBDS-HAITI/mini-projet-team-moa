@@ -4,6 +4,7 @@ const courseRoutes = require('./courses');
 const gradeRoutes = require('./grades');
 const userRoutes = require('./users');
 const statsRoutes = require('./stats');
+const googleRoutes = require('./google'); 
 
 const router = express.Router();
 
@@ -12,5 +13,6 @@ router.use('/courses', courseRoutes);
 router.use('/grades', gradeRoutes);
 router.use('/users', userRoutes);
 router.use('/stats', statsRoutes);
+router.use('/', googleRoutes); 
 
 module.exports = router;
