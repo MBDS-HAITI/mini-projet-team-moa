@@ -96,13 +96,20 @@ export default function Login() {
 <hr/>
                     <div className="google-login-wrapper">
   <GoogleLogin
-  onSuccess={(response) => {
-    console.log("GOOGLE SUCCESS RESPONSE:", response);
-    console.log("GOOGLE CREDENTIAL:", response.credential);
-    loginWithGoogle(response.credential);
-    navigate("/home");
+  onSuccess={async (response) => {
+    try {
+      console.log("GOOGLE SUCCESS RESPONSE:", response);
+      console.log("GOOGLE CREDENTIAL:", response.credential);
+      setError(null);
+      await loginWithGoogle(response.credential);
+      navigate("/home");
+    } catch (err) {
+      setError(err.message || "Google authentication failed");
+      console.error("GOOGLE LOGIN ERROR:", err);
+    }
   }}
   onError={() => {
+    setError("Google authentication failed. Please try again.");
     console.error("GOOGLE LOGIN ERROR");
   }}
 />

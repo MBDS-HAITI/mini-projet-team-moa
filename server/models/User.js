@@ -3,10 +3,15 @@ const bcrypt = require('bcryptjs');
 
 const UserSchema = new mongoose.Schema(
   {
-    username: { type: String, required: true, trim: true },
-    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    password: { type: String, required: true },
-    role: { type: String, enum: ['admin', 'scolarite', 'student'], default: 'student' }
+    username: { type: String, trim: true},
+    name: { type: String, trim: true },
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true,
+           match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Email invalide'] },
+    password: { type: String, required: true, minlength: 6 },
+    role: { type: String, enum: ['admin', 'scolarite', 'student'], default: 'student' },
+    provider: { type: String, enum: ['local', 'google', 'github', 'linkedin'], default: 'local' },
+    profileImage: { type: String, default: null },
+    lastLogin: { type: Date }
   },
   { timestamps: true }
 );
@@ -25,5 +30,12 @@ UserSchema.pre('save', async function save(next) {
 UserSchema.methods.comparePassword = function comparePassword(candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
+
+  // Methode pour mettre a jour la dernière connexion
+  UserSchema.methods.updateLastLogin = function() {
+    this.lastLogin = Date.now();
+    return this.save();
+  };
+
 
 module.exports = mongoose.model('User', UserSchema);
