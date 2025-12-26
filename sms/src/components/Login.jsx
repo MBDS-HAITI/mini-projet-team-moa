@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
 import { useAuth } from "../context/AuthContext.jsx";
+import { GoogleLogin } from "@react-oauth/google";
+
 
 export default function Login() {
     const [email, setEmail] = useState("");
@@ -90,6 +92,21 @@ export default function Login() {
                             )}
                         </button>
                     </form>
+<hr/>
+                    <div className="google-login-wrapper">
+  <GoogleLogin
+  onSuccess={(response) => {
+    console.log("GOOGLE SUCCESS RESPONSE:", response);
+    console.log("GOOGLE CREDENTIAL:", response.credential);
+    loginWithGoogle(response.credential);
+  }}
+  onError={() => {
+    console.error("GOOGLE LOGIN ERROR");
+  }}
+/>
+</div>
+
+                    
                     
                     <div className="login-footer">
                         <p>Plateforme de Gestion Académique MBDS</p>

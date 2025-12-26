@@ -1,13 +1,19 @@
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
-import User from '../models/User.js';
-import { OAuth2Client } from "google-auth-library";
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const User = require('../models/User');
+const { OAuth2Client } = require('google-auth-library');
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
+// =========================
+// LOGIN AVEC GOOGLE
+// =========================
+const loginGoogle = async (req, res) => {
+  console.log("=== GOOGLE LOGIN HIT ===");
+  console.log("BODY:", req.body);
+  console.log("TOKEN:", req.body?.token);
+  console.log("CLIENT_ID:", process.env.GOOGLE_CLIENT_ID);
 
-// LOGIN GOOGLE
-export const loginGoogle = async (req, res) => {
   try {
     const { token } = req.body;
 
@@ -23,18 +29,19 @@ export const loginGoogle = async (req, res) => {
     const payload = ticket.getPayload();
     const email = payload.email;
 
-    // Try to find existing user
     let user = await User.findOne({ email });
 
     if (!user) {
-      // Create a new user with a random password (hashed)
       const randomPassword = Math.random().toString(36).slice(-8);
       const hashed = await bcrypt.hash(randomPassword, 10);
 
-      // Determine role: if email is listed in ADMIN_EMAILS env var, make admin
       let role = 'student';
       const adminList = process.env.ADMIN_EMAILS || '';
-      const admins = adminList.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
+      const admins = adminList
+        .split(',')
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean);
+
       if (admins.includes(email.toLowerCase())) role = 'admin';
 
       user = new User({
@@ -42,13 +49,12 @@ export const loginGoogle = async (req, res) => {
         email,
         password: hashed,
         provider: 'google',
-        profileImage: payload.picture,
+        profileImage: payload.picture || null,
         role,
       });
 
       await user.save();
     } else {
-      // ensure provider is set to google
       if (user.provider !== 'google') {
         user.provider = 'google';
         await user.save();
@@ -61,38 +67,54 @@ export const loginGoogle = async (req, res) => {
       { expiresIn: '1d' }
     );
 
-    res.status(200).json({ success: true, token: appToken, user: { id: user._id, name: user.name, role: user.role, email: user.email, profileImage: user.profileImage } });
+    res.status(200).json({
+      token: appToken,
+      user: {
+        id: user._id,
+        username: user.name,
+        email: user.email,
+        role: user.role,
+        profileImage: user.profileImage || null
+      }
+    });
   } catch (err) {
-    console.error(err);
+    console.error('GOOGLE LOGIN ERROR:', err);
     res.status(401).json({ message: 'Invalid Google token' });
   }
 };
 
-export const googleCallback = (req, res) => {
+// =========================
+// CALLBACKS (OPTIONNELS)
+// =========================
+const googleCallback = (req, res) => {
   const token = jwt.sign(
     { id: req.user._id, role: req.user.role },
     process.env.JWT_SECRET,
     { expiresIn: '1d' }
   );
 
-  // ✅ SAME RESPONSE STRUCTURE
   res.redirect(
     `http://localhost:5173/oauth-success?token=${token}&role=${req.user.role}`
   );
 };
 
-
-export const githubCallback = (req, res) => {
+const githubCallback = (req, res) => {
   const token = jwt.sign(
     { id: req.user._id, role: req.user.role },
     process.env.JWT_SECRET,
     { expiresIn: '1d' }
   );
 
-  // ✅ SAME LOGIC
   res.redirect(
     `http://localhost:5173/oauth-success?token=${token}&role=${req.user.role}`
   );
 };
 
-
+// =========================
+// EXPORT COMMONJS
+// =========================
+module.exports = {
+  loginGoogle,
+  googleCallback,
+  githubCallback
+};
