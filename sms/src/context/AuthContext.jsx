@@ -61,20 +61,20 @@ const loginWithGoogle = async (googleToken) => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token: googleToken }),
-  
     });
 
     const payload = await res.json().catch(() => ({}));
 
     if (!res.ok) {
-      throw new Error(payload.error || "Google authentication failed");
+      const errorMessage = payload.message || payload.error || "Google authentication failed";
+      throw new Error(errorMessage);
     }
 
     const authToken = payload.token;
     const authUser = payload.user;
 
     if (!authToken || !authUser) {
-      throw new Error("Réponse Google invalide depuis le serveur.");
+      throw new Error("Invalid response from server. Please try again.");
     }
 
     const normalizedUser = {
@@ -87,6 +87,11 @@ const loginWithGoogle = async (googleToken) => {
 
     localStorage.setItem("authToken", authToken);
     localStorage.setItem("user", JSON.stringify(normalizedUser));
+    
+    return normalizedUser;
+  } catch (err) {
+    console.error("Google login error:", err);
+    throw err;
   } finally {
     setLoading(false);
   }
