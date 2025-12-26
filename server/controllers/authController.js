@@ -13,6 +13,7 @@ const loginGoogle = async (req, res) => {
   console.log("BODY:", req.body);
   console.log("TOKEN:", req.body?.token);
   console.log("CLIENT_ID:", process.env.GOOGLE_CLIENT_ID);
+  console.log("JWT_SECRET:", process.env.JWT_SECRET);
 
   try {
     const { token } = req.body;

@@ -52,6 +52,48 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+    //----------------------------------------------------------------
+const loginWithGoogle = async (googleToken) => {
+  setLoading(true);
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/google`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: googleToken }),
+  
+    });
+
+    const payload = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(payload.error || "Google authentication failed");
+    }
+
+    const authToken = payload.token;
+    const authUser = payload.user;
+
+    if (!authToken || !authUser) {
+      throw new Error("Réponse Google invalide depuis le serveur.");
+    }
+
+    const normalizedUser = {
+      ...authUser,
+      role: authUser.role ? authUser.role.toLowerCase() : undefined,
+    };
+
+    setToken(authToken);
+    setUser(normalizedUser);
+
+    localStorage.setItem("authToken", authToken);
+    localStorage.setItem("user", JSON.stringify(normalizedUser));
+  } finally {
+    setLoading(false);
+  }
+};
+
+  //-----------------------------------------------------------------
+
   const logout = () => {
     setToken(null);
     setUser(null);
@@ -67,6 +109,7 @@ export const AuthProvider = ({ children }) => {
         isAuthenticated: !!token,
         loading,
         login,
+        loginWithGoogle, 
         logout
       }}
     >

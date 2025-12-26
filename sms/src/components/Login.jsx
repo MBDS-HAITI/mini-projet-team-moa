@@ -10,7 +10,8 @@ export default function Login() {
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
     const navigate = useNavigate();
-    const { login, loading } = useAuth();
+    //const { login, loading } = useAuth();
+    const { login, loginWithGoogle, loading } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -99,6 +100,7 @@ export default function Login() {
     console.log("GOOGLE SUCCESS RESPONSE:", response);
     console.log("GOOGLE CREDENTIAL:", response.credential);
     loginWithGoogle(response.credential);
+    navigate("/home");
   }}
   onError={() => {
     console.error("GOOGLE LOGIN ERROR");
