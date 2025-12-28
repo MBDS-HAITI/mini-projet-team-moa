@@ -12,14 +12,14 @@ import {
   useTheme,
   alpha,
 } from '@mui/material';
+import { Chip } from '@mui/material';
 import {
   LineChart,
   Line,
   PieChart,
   Pie,
   Cell,
-  AreaChart,
-  Area,
+  
   ScatterChart,
   Scatter,
   XAxis,
@@ -48,7 +48,7 @@ function StatCard({ label, value, hint, color, icon }) {
         },
       }}
     >
-      <CardContent sx={{ pb: 2 }}>
+      <CardContent sx={{ py: 3 }}>
         <Typography sx={{ fontSize: 32, mb: 1 }}>{icon}</Typography>
         <Typography variant="caption" sx={{ color: theme.palette.text.secondary, display: 'block' }}>
           {label}
@@ -93,6 +93,34 @@ function QuickActionCard({ title, description, icon, color, onClick }) {
         </Typography>
       </CardContent>
     </Card>
+  );
+}
+
+function VerticalProgress({ value, color }) {
+  const v = Math.max(0, Math.min(100, value || 0));
+  return (
+    <Box
+      sx={{
+        height: 180,
+        width: 14,
+        borderRadius: 1,
+        backgroundColor: alpha(color, 0.15),
+        position: 'relative',
+        overflow: 'hidden',
+        border: (theme) => `1px solid ${alpha(theme.palette.divider, 0.6)}`,
+      }}
+    >
+      <Box
+        sx={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: `${v}%`,
+          backgroundColor: color,
+        }}
+      />
+    </Box>
   );
 }
 
@@ -179,17 +207,23 @@ export default function Home() {
       key: 'grades',
       content: (
         <Card sx={{ height: '100%' }}>
-          <CardHeader title="Distribution des Notes" />
-          <CardContent>
-            <ResponsiveContainer width="100%" height={340}>
+          <Box sx={{ px: 2, pt: 2 }}>
+            <Typography variant="overline" sx={{ color: theme.palette.text.secondary }}>
+               Tableau des beignets
+             </Typography>
+           </Box>
+           <CardHeader title="Distribution des Notes" />
+          <CardContent sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <ResponsiveContainer width="100%" height={260}>
               <PieChart>
                 <Pie
                   data={gradeDistribution}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, value }) => `${name}: ${value}`}
-                  outerRadius={120}
+                  label={({ value }) => `${value}`}
+                  outerRadius={110}
+                  innerRadius={60}
                   dataKey="value"
                 >
                   {gradeDistribution.map((entry, index) => (
@@ -197,7 +231,6 @@ export default function Home() {
                   ))}
                 </Pie>
                 <Tooltip contentStyle={{ fontSize: 13 }} />
-                <Legend wrapperStyle={{ fontSize: 13 }} />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
@@ -208,9 +241,14 @@ export default function Home() {
       key: 'students',
       content: (
         <Card sx={{ height: '100%' }}>
+          <Box sx={{ px: 2, pt: 2 }}>
+            <Typography variant="overline" sx={{ color: theme.palette.text.secondary }}>
+              Courbes
+            </Typography>
+          </Box>
           <CardHeader title="Croissance des Inscriptions" />
-          <CardContent>
-            <ResponsiveContainer width="100%" height={340}>
+          <CardContent sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <ResponsiveContainer width="100%" height={260}>
               <LineChart data={studentGrowth}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" tick={{ fontSize: 12 }} />
@@ -231,26 +269,29 @@ export default function Home() {
       ),
     },
     courseStats.length > 0 && {
-      key: 'course-area',
+      key: 'course-progress',
       content: (
         <Card sx={{ height: '100%' }}>
-          <CardHeader title="Moyenne par Cours (/100)" />
-          <CardContent>
-            <ResponsiveContainer width="100%" height={360}>
-              <AreaChart data={courseStats}>
-                <defs>
-                  <linearGradient id="avgFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={theme.palette.primary.main} stopOpacity={0.5} />
-                    <stop offset="100%" stopColor={theme.palette.primary.main} stopOpacity={0.05} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} />
-                <Tooltip contentStyle={{ fontSize: 13 }} />
-                <Area type="monotone" dataKey="average" name="Moyenne" stroke={theme.palette.primary.main} strokeWidth={3} fill="url(#avgFill)" />
-              </AreaChart>
-            </ResponsiveContainer>
+          <Box sx={{ px: 2, pt: 2 }}>
+            <Typography variant="overline" sx={{ color: theme.palette.text.secondary }}>
+              Barre de progression verticale
+            </Typography>
+          </Box>
+          <CardHeader title="Moyenne par Cours" />
+          <CardContent sx={{ minHeight: 260, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 2, overflowX: 'auto', pb: 1 }}>
+              {courseStats.map((c) => (
+                <Box key={c.name} sx={{ textAlign: 'center', minWidth: 40 }}>
+                  <VerticalProgress value={c.average} color={theme.palette.primary.main} />
+                  <Typography variant="caption" noWrap sx={{ mt: 0.5 }}>
+                    {c.name}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: theme.palette.text.secondary }}>
+                    {c.average}%
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
           </CardContent>
         </Card>
       ),
@@ -259,15 +300,19 @@ export default function Home() {
       key: 'course-scatter',
       content: (
         <Card sx={{ height: '100%' }}>
-          <CardHeader title="Relation: Moyenne vs Étudiants" />
-          <CardContent>
-            <ResponsiveContainer width="100%" height={360}>
+          <Box sx={{ px: 2, pt: 2 }}>
+            <Typography variant="overline" sx={{ color: theme.palette.text.secondary }}>
+              Nuage de points
+            </Typography>
+          </Box>
+           <CardHeader title="Relation Moyenne vs Étudiants" />
+          <CardContent sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <ResponsiveContainer width="100%" height={260}>
               <ScatterChart margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis type="number" dataKey="average" name="Moyenne" domain={[0, 100]} tick={{ fontSize: 12 }} />
                 <YAxis type="number" dataKey="count" name="Étudiants" tick={{ fontSize: 12 }} />
                 <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ fontSize: 13 }} />
-                <Legend wrapperStyle={{ fontSize: 13 }} />
                 <Scatter name="Cours" data={courseStats} fill={theme.palette.info.main} />
               </ScatterChart>
             </ResponsiveContainer>
@@ -316,7 +361,7 @@ export default function Home() {
       </Card>
 
       {/* Stats Row */}
-      <Grid container spacing={2} sx={{ mb: 4 }}>
+      <Grid container spacing={6} sx={{ mb: 5 }}>
         {stats.map((s) => (
           <Grid item xs={12} sm={6} md={3} key={s.label}>
             <StatCard label={s.label} value={s.value} hint={s.hint} color={s.color} icon={s.icon} />
@@ -334,9 +379,15 @@ export default function Home() {
             subheaderTypographyProps={{ variant: 'body1' }}
           />
           <CardContent>
-            <Grid container spacing={3}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mb: 2 }}>
+              <Chip label="Beignets" size="small" color="primary" variant="outlined" />
+              <Chip label="Courbes" size="small" color="secondary" variant="outlined" />
+              <Chip label="Barre de progression" size="small" color="success" variant="outlined" />
+              <Chip label="Nuage de points" size="small" color="info" variant="outlined" />
+            </Box>
+            <Grid container spacing={3} sx={{ justifyContent: 'center' }}>
               {chartCards.map((chart) => (
-                <Grid item xs={12} md={12} key={chart.key}>
+                <Grid item xs={12} sm={6} md={3} key={chart.key} sx={{ display: 'flex', justifyContent: 'center' }}>
                   {chart.content}
                 </Grid>
               ))}

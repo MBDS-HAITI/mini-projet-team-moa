@@ -23,8 +23,9 @@ export default function Students() {
 
   const { data: students = [], loading: dataLoading, error } = useStudents();
 
-  // Check if user can create/edit/delete
-  const canModify = user?.role === 'admin' || user?.role === 'scolarite';
+  // Rôles: seul admin peut créer et supprimer; admin ou scolarité peuvent modifier
+  const isAdmin = user?.role === 'admin';
+  const canEdit = isAdmin || user?.role === 'scolarite';
 
   // Filter students based on search
   const filteredStudents = useMemo(() => {
@@ -112,7 +113,13 @@ export default function Students() {
         await apiClient.updateStudent(editingId, studentData);
         setMessage('Étudiant mis à jour avec succès!');
       } else {
-        // Create student
+        // Create student (admin uniquement)
+        if (!isAdmin) {
+          setMessage('Accès refusé: seule l\'administration peut créer un étudiant');
+          setMessageType('error');
+          setLoading(false);
+          return;
+        }
         await apiClient.createStudent(studentData);
         setMessage('Étudiant créé avec succès!');
       }
@@ -130,6 +137,12 @@ export default function Students() {
   };
 
   const handleDelete = async (studentId) => {
+    // Suppression réservée à l'admin
+    if (!isAdmin) {
+      setMessage('Accès refusé: seule l\'administration peut supprimer un étudiant');
+      setMessageType('error');
+      return;
+    }
     if (!window.confirm('Êtes-vous sûr de vouloir supprimer cet étudiant?')) {
       return;
     }
@@ -195,7 +208,7 @@ export default function Students() {
             <option value={0}>Show all</option>
           </select>
 
-          {canModify && (
+          {isAdmin && (
             <button
               onClick={() => {
                 resetForm();
@@ -223,7 +236,7 @@ export default function Students() {
         </div>
       )}
 
-      {showForm && canModify && (
+      {showForm && (editingId ? canEdit : isAdmin) && (
         <div className="form-card" style={{marginBottom: 30}}>
           <h2>{editingId ? 'Modifier un étudiant' : 'Créer un nouvel étudiant'}</h2>
           <form onSubmit={handleSubmit}>
@@ -297,7 +310,7 @@ export default function Students() {
             <th style={{textAlign:'left',padding:12}}>First Name</th>
             <th style={{textAlign:'left',padding:12}}>Last Name</th>
             <th style={{textAlign:'left',padding:12}}>Email</th>
-            {canModify && <th style={{textAlign:'center',padding:12}}>Actions</th>}
+            {(canEdit || isAdmin) && <th style={{textAlign:'center',padding:12}}>Actions</th>}
           </tr>
         </thead>
         <tbody>
@@ -306,37 +319,41 @@ export default function Students() {
               <td style={{padding:12}}>{student.firstname}</td>
               <td style={{padding:12}}>{student.lastname}</td>
               <td style={{padding:12}}>{student.email || '—'}</td>
-              {canModify && (
+              {(canEdit || isAdmin) && (
                 <td style={{padding:12, textAlign:'center'}}>
-                  <button
-                    onClick={() => handleEdit(student)}
-                    style={{
-                      padding: '4px 8px',
-                      marginRight: 8,
-                      backgroundColor: '#3b82f6',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: 4,
-                      cursor: 'pointer',
-                      fontSize: '12px'
-                    }}
-                  >
-                    ✎ Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(student.id)}
-                    style={{
-                      padding: '4px 8px',
-                      backgroundColor: '#ef4444',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: 4,
-                      cursor: 'pointer',
-                      fontSize: '12px'
-                    }}
-                  >
-                    🗑️ Delete
-                  </button>
+                  {canEdit && (
+                    <button
+                      onClick={() => handleEdit(student)}
+                      style={{
+                        padding: '4px 8px',
+                        marginRight: 8,
+                        backgroundColor: '#3b82f6',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: 4,
+                        cursor: 'pointer',
+                        fontSize: '12px'
+                      }}
+                    >
+                      ✎ Edit
+                    </button>
+                  )}
+                  {isAdmin && (
+                    <button
+                      onClick={() => handleDelete(student.id)}
+                      style={{
+                        padding: '4px 8px',
+                        backgroundColor: '#ef4444',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: 4,
+                        cursor: 'pointer',
+                        fontSize: '12px'
+                      }}
+                    >
+                      🗑️ Delete
+                    </button>
+                  )}
                 </td>
               )}
             </tr>

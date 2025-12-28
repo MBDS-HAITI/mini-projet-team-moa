@@ -19,17 +19,17 @@ function CreateStudent() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
 
-  // Only admin and scolarite can create students
-  const isAuthorized = user?.role === 'admin' || user?.role === 'scolarite';
+  // Only admin can create students
+  const isAuthorized = user?.role === 'admin';
 
   if (!isAuthorized) {
     return (
       <div className="create-student-container">
         <div className="access-denied">
-          <h2>Accès refusé</h2>
-          <p>Seul un administrateur ou un responsable scolarité peut créer un étudiant.</p>
+          <h2>Access Denied</h2>
+          <p>Only an administrator can create a student.</p>
           <button onClick={() => navigate('/home')} className="btn-back">
-            Retour à l'accueil
+            Back to Home
           </button>
         </div>
       </div>
@@ -188,7 +188,7 @@ function CreateStudent() {
               onClick={() => navigate('/students')}
               disabled={loading}
             >
-              Annuler
+              Cancel
             </button>
           </div>
         </form>

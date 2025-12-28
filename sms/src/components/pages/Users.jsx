@@ -233,35 +233,39 @@ function Users() {
                 </span>
               </td>
               <td style={{ padding: 12, textAlign: 'center' }}>
-                <button
-                  onClick={() => handleOpenModal(user)}
-                  style={{
-                    padding: '6px 12px',
-                    backgroundColor: '#3b82f6',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: 6,
-                    fontSize: 14,
-                    cursor: 'pointer',
-                    marginRight: 8
-                  }}
-                >
-                  ✏️ Modifier
-                </button>
-                <button
-                  onClick={() => handleDelete(user.id)}
-                  style={{
-                    padding: '6px 12px',
-                    backgroundColor: '#ef4444',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: 6,
-                    fontSize: 14,
-                    cursor: 'pointer'
-                  }}
-                >
-                  🗑️ Supprimer
-                </button>
+                {isAdmin && (
+                  <>
+                    <button
+                      onClick={() => handleOpenModal(user)}
+                      style={{
+                        padding: '6px 12px',
+                        backgroundColor: '#3b82f6',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: 6,
+                        fontSize: 14,
+                        cursor: 'pointer',
+                        marginRight: 8
+                      }}
+                    >
+                      ✏️ Modifier
+                    </button>
+                    <button
+                      onClick={() => handleDelete(user.id)}
+                      style={{
+                        padding: '6px 12px',
+                        backgroundColor: '#ef4444',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: 6,
+                        fontSize: 14,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      🗑️ Supprimer
+                    </button>
+                  </>
+                )}
               </td>
             </tr>
           ))}

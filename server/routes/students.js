@@ -34,8 +34,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Create a student (admin/scolarite)
-router.post('/', authorize('admin', 'scolarite'), async (req, res) => {
+// Create a student (admin only)
+router.post('/', authorize('admin'), async (req, res) => {
   try {
     const { firstName, lastName, email } = req.body;
     const student = await Student.create({ firstName, lastName, email });

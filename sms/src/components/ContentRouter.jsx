@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import Login from "./Login.jsx";
 import ProtectedRoute from "./ProtectedRoute";
+import AdminRoute from "./AdminRoute";
 
 function ContentRouter() {
   const { isAuthenticated } = useAuth();
@@ -24,7 +25,7 @@ function ContentRouter() {
       <Route path="/students" element={<ProtectedRoute><Students /></ProtectedRoute>} />
       <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
       <Route path="/grades" element={<ProtectedRoute><Grades /></ProtectedRoute>} />
-      <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
+      <Route path="/users" element={<AdminRoute><Users /></AdminRoute>} />
       <Route path="/about" element={<ProtectedRoute><About /></ProtectedRoute>} />
       
       <Route path="*" element={<Navigate to="/" />} />

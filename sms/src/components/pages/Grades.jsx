@@ -21,18 +21,29 @@ export default function Grades() {
 
   const role = (user?.role || '').toLowerCase();
   const canEdit = role === 'admin' || role === 'scolarite';
+  const isStudent = role === 'student';
+
+  // Filter grades: students see only their own
+  const roleFilteredGrades = useMemo(() => {
+    if (!isStudent) return grades;
+    // Backend already filters, but ensure client-side filter for students
+    return grades.filter(g => 
+      g.studentId === user?.id || 
+      (user?.email && g.studentEmail === user.email)
+    );
+  }, [grades, isStudent, user?.id, user?.email]);
 
   // Filter grades based on search
   const filteredGrades = useMemo(() => {
-    if (!searchTerm) return grades;
+    if (!searchTerm) return roleFilteredGrades;
     const term = searchTerm.toLowerCase();
-    return grades.filter(g => 
+    return roleFilteredGrades.filter(g => 
       (g.courseName || '').toLowerCase().includes(term) ||
       (`${g.studentFirstName || ''} ${g.studentLastName || ''}`).toLowerCase().includes(term) ||
       (g.id || '').toLowerCase().includes(term) ||
       (g.grade?.toString() || '').includes(term)
     );
-  }, [grades, searchTerm]);
+  }, [roleFilteredGrades, searchTerm]);
 
   // Sort grades
   const sortedGrades = useMemo(() => {
@@ -209,6 +220,12 @@ export default function Grades() {
         {message && (
           <div className={`banner ${messageType === 'error' ? 'error' : 'success'}`}>
             {message}
+          </div>
+        )}
+
+        {isStudent && (
+          <div className="banner" style={{backgroundColor: '#dbeafe', color: '#1e40af', marginBottom: 16}}>
+            ℹ️ Affichage de vos notes uniquement
           </div>
         )}
 
