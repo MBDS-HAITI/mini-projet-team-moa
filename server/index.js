@@ -4,13 +4,48 @@ const cors = require('cors');
 const morgan = require('morgan');
 const connectDB = require('./config/db');
 const apiRoutes = require('./routes');
+const nodemailer = require('nodemailer');
+
 
 const app = express();
 const PORT = process.env.PORT || 8010;
 
-app.use(cors());
+// Autoriser le frontend Vite (localhost:5173) via CORS
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
 app.use(express.json());
 app.use(morgan('dev'));
+
+// Configure nodemailer transporter for Gmail
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+app.post('/send-email', async (req, res) => {
+  try {
+    const { to, subject, text } = req.body;
+    if (!to || !subject || !text) {
+      return res.status(400).json({ error: 'Champs requis manquants : to, subject, text' });
+    }
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to,
+      subject,
+      text,
+    };
+    const info = await transporter.sendMail(mailOptions);
+    res.status(200).json({ message: 'Email envoyé avec succès', messageId: info.messageId });
+  } catch (error) {
+    console.error('Erreur d\'envoi d\'email :', error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 connectDB();
 

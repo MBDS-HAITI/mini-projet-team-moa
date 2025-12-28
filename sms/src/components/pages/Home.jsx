@@ -221,16 +221,17 @@ export default function Home() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ value }) => `${value}`}
-                  outerRadius={110}
-                  innerRadius={60}
+                  label={({ name, value }) => `${name}: ${value}`}
+                  outerRadius={120}
+                  innerRadius={70}
                   dataKey="value"
+                  labelStyle={{ fontSize: 18, fontWeight: 700, fill: theme.palette.text.primary }}
                 >
                   {gradeDistribution.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip contentStyle={{ fontSize: 13 }} />
+                <Tooltip contentStyle={{ fontSize: 18, color: theme.palette.text.primary, fontWeight: 600 }} />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
@@ -251,9 +252,9 @@ export default function Home() {
             <ResponsiveContainer width="100%" height={260}>
               <LineChart data={studentGrowth}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip contentStyle={{ fontSize: 13 }} />
+                <XAxis dataKey="name" tick={{ fontSize: 18, fontWeight: 600 }} />
+                <YAxis tick={{ fontSize: 18, fontWeight: 600 }} />
+                <Tooltip contentStyle={{ fontSize: 18 }} />
                 <Line
                   type="monotone"
                   dataKey="inscriptions"
@@ -310,9 +311,9 @@ export default function Home() {
             <ResponsiveContainer width="100%" height={260}>
               <ScatterChart margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" dataKey="average" name="Moyenne" domain={[0, 100]} tick={{ fontSize: 12 }} />
-                <YAxis type="number" dataKey="count" name="Étudiants" tick={{ fontSize: 12 }} />
-                <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ fontSize: 13 }} />
+                <XAxis type="number" dataKey="average" name="Moyenne" domain={[0, 100]} tick={{ fontSize: 18, fontWeight: 600 }} />
+                <YAxis type="number" dataKey="count" name="Étudiants" tick={{ fontSize: 18, fontWeight: 600 }} />
+                <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ fontSize: 18 }} />
                 <Scatter name="Cours" data={courseStats} fill={theme.palette.info.main} />
               </ScatterChart>
             </ResponsiveContainer>
@@ -371,7 +372,7 @@ export default function Home() {
 
       {/* Charts Section */}
       {chartCards.length > 0 && (
-        <Card sx={{ mb: 4 }}>
+  <Card sx={{ mb: 4, background: theme.palette.mode === 'dark' ? '#fff' : undefined }}>
           <CardHeader
             title="Analyses principales"
             subheader="Visualisez rapidement les tendances clés"
@@ -385,13 +386,13 @@ export default function Home() {
               <Chip label="Barre de progression" size="small" color="success" variant="outlined" />
               <Chip label="Nuage de points" size="small" color="info" variant="outlined" />
             </Box>
-            <Grid container spacing={3} sx={{ justifyContent: 'center' }}>
+            <Box sx={{ display: 'flex', flexWrap: 'nowrap', justifyContent: 'center', alignItems: 'stretch', gap: 3, width: '100%', overflowX: 'auto', pb: 2 }}>
               {chartCards.map((chart) => (
-                <Grid item xs={12} sm={6} md={3} key={chart.key} sx={{ display: 'flex', justifyContent: 'center' }}>
+                <Box key={chart.key} sx={{ width: 420, minHeight: 420, display: 'flex', alignItems: 'stretch', justifyContent: 'center' }}>
                   {chart.content}
-                </Grid>
+                </Box>
               ))}
-            </Grid>
+            </Box>
           </CardContent>
         </Card>
       )}

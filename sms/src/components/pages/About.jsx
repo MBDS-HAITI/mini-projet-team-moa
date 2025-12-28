@@ -106,6 +106,13 @@ export default function About() {
           <div><strong>Téléphone:</strong> <a href={`tel:${phone.replace(/\s/g, '')}`}>{phone}</a></div>
           <div><strong>Développeur:</strong> {programmeur}</div>
         </div>
+        <div style={{ marginTop: 16 }}>
+          <a href="/contact">
+            <button style={{ padding: '8px 18px', background: '#2563eb', color: 'white', border: 'none', borderRadius: 5, cursor: 'pointer' }}>
+              Envoyer un message
+            </button>
+          </a>
+        </div>
       </section>
     </main>
   );

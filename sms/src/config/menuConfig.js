@@ -40,6 +40,14 @@ export const menuItems = [
     path: '/courses'
   },
   {
+    id: 'contact',
+    label: 'Contact',
+    description: 'Contactez-nous',
+    icon: '✉️',
+    color: '#f59e42',
+    path: '/contact'
+  },
+  {
     id: 'users',
     label: 'Users',
     description: 'Manage users',

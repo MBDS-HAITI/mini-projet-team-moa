@@ -3,6 +3,7 @@ import Students from "./pages/Students.jsx";
 import Grades from "./pages/Grades.jsx";
 import Courses from "./pages/Courses.jsx";
 import About from "./pages/About.jsx";
+import Contact from "./pages/Contact.jsx";
 import Users from "./pages/Users.jsx";
 import Home from "./pages/Home.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
@@ -27,6 +28,7 @@ function ContentRouter() {
       <Route path="/grades" element={<ProtectedRoute><Grades /></ProtectedRoute>} />
       <Route path="/users" element={<AdminRoute><Users /></AdminRoute>} />
       <Route path="/about" element={<ProtectedRoute><About /></ProtectedRoute>} />
+      <Route path="/contact" element={<ProtectedRoute><Contact /></ProtectedRoute>} />
       
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
