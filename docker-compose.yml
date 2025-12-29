@@ -1,0 +1,16 @@
+services:
+  backend:
+    build: ./server
+    container_name: server-backend
+    ports:
+      - "8010:8010"
+    env_file:
+      - ./server/.env
+
+  frontend:
+    build: ./sms
+    container_name: sms-front
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
