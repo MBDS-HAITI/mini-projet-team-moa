@@ -58,7 +58,7 @@ function ContactForm() {
             <label style={{ fontWeight: 600, marginBottom: 4, color: '#111', letterSpacing: 0.2 }}>Recipient</label>
             <input
                 type="email"
-                placeholder="e.g. teammoa2025@gmail.com"
+                placeholder="e.g. moasolutiontech@gmail.com"
                 value={to}
                 onChange={e => setTo(e.target.value)}
                 required
