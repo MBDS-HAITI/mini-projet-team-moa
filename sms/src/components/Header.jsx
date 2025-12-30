@@ -1,5 +1,19 @@
-import { useState } from 'react';
+import SettingsIcon from '@mui/icons-material/Settings';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { menuItems } from '../config/menuConfig';
+import MenuIcon from '@mui/icons-material/Menu';
+import CloseIcon from '@mui/icons-material/Close';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import { useState, React } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
+import useNotifications from '../hooks/useNotifications';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
+
 import { NavLink, useNavigate } from 'react-router-dom';
+
 import { 
   Box, 
   IconButton, 
@@ -14,63 +28,61 @@ import {
   Tooltip,
   Badge
 } from '@mui/material';
-import SettingsIcon from '@mui/icons-material/Settings';
-import LightModeIcon from '@mui/icons-material/LightMode';
-import DarkModeIcon from '@mui/icons-material/DarkMode';
-import LogoutIcon from '@mui/icons-material/Logout';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import MenuIcon from '@mui/icons-material/Menu';
-import CloseIcon from '@mui/icons-material/Close';
-import { menuItems } from '../config/menuConfig';
-import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
-import './Header.css';
-
 export default function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const { isAuthenticated, logout, user } = useAuth();
-  const { themeMode, toggleTheme } = useTheme();
+            const navigate = useNavigate();
+            // Handler pour aller à la page des paramètres utilisateur
+            function handleNavigateToSettings() {
+              navigate('/settings'); // adapte le chemin si besoin
+              if (typeof handleSettingsClose === 'function') {
+                handleSettingsClose();
+              }
+            }
+          // Utilitaire pour afficher les initiales de l'utilisateur
+          function getUserInitials() {
+            if (!user || !user.username) return '';
+            const names = user.username.trim().split(' ');
+            if (names.length === 1) return names[0][0].toUpperCase();
+            return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+          }
+        // Pour le menu utilisateur (admin)
+        const [anchorEl, setAnchorEl] = useState(null);
+        const handleSettingsClick = (event) => setAnchorEl(event.currentTarget);
+        const handleSettingsClose = () => setAnchorEl(null);
+      // ...existing code...
+      // Handler pour la déconnexion
+      const handleLogout = () => {
+        if (typeof logout === 'function') {
+          logout();
+        }
+        if (typeof handleSettingsClose === 'function') {
+          handleSettingsClose();
+        }
+      };
+    // State for mobile menu toggle
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
   const muiTheme = useMuiTheme();
-  const navigate = useNavigate();
+  const { isAuthenticated, user, logout } = useAuth();
+  // Notifications hook
+  const { notifications, loading: notifLoading, error: notifError } = useNotifications(user?._id);
+  // Theme context
+  const { themeMode, toggleTheme } = useTheme();
+  const handleThemeToggle = toggleTheme;
 
-  const handleSettingsClick = (event) => {
-    setAnchorEl(event.currentTarget);
+  // Ajout de la fonction handleNotifClick pour ouvrir le menu de notifications
+  const [notifAnchorEl, setNotifAnchorEl] = useState(null);
+  const notifOpen = Boolean(notifAnchorEl);
+  const handleNotifClick = (event) => {
+    setNotifAnchorEl(event.currentTarget);
   };
-
-  const handleSettingsClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleThemeToggle = () => {
-    toggleTheme();
-  };
-
-  const handleNavigateToSettings = () => {
-    handleSettingsClose();
-    navigate('/settings');
-    setIsMenuOpen(false);
-  };
-
-  const handleLogout = () => {
-    handleSettingsClose();
-    logout();
-    navigate('/login');
-  };
-
-  const getUserInitials = () => {
-    if (!user?.username) return 'U';
-    const names = user.username.split(' ');
-    if (names.length >= 2) {
-      return `${names[0][0]}${names[1][0]}`.toUpperCase();
-    }
-    return user.username.substring(0, 2).toUpperCase();
+  const handleNotifClose = () => {
+    setNotifAnchorEl(null);
   };
 
   return (
     <header className="Header" style={{ backgroundColor: muiTheme.palette.background.paper, borderColor: muiTheme.palette.divider }}>
       <div className="header-container">
-        {/* Logo et Titre */}
+        {/* Logo, Titre et Menu fusionnés */}
         <div className="brand">
           <img src="/logoMBDS.png" alt="Logo MBDS" className="logo" />
           <div className="brand-text">
@@ -78,7 +90,34 @@ export default function Header() {
             <p className="subtitle" style={{ color: muiTheme.palette.text.secondary }}>Plateforme de Gestion des Données</p>
           </div>
         </div>
-
+        {/* Menu sur la même ligne que le logo et le titre */}
+        <nav className="nav" style={{ backgroundColor: muiTheme.palette.background.paper, marginLeft: 24, marginRight: 0, flex: 1, justifyContent: 'flex-start' }}>
+          <ul className="nav-list">
+            {menuItems
+              .filter(item => item.id !== 'users' || (user && user.role === 'admin'))
+              .map((item) => (
+                <li key={item.id} className="nav-item">
+                  <NavLink
+                    to={item.path}
+                    className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                    style={{
+                      '--color': item.color,
+                      color: muiTheme.palette.text.primary,
+                      borderColor: muiTheme.palette.divider,
+                      backgroundColor: muiTheme.palette.background.paper,
+                    }}
+                  >
+                    <span className="nav-icon">{item.icon}</span>
+                    <span className="nav-text">
+                      <span className="nav-label">{item.label}</span>
+                      <span className="nav-description">{item.description}</span>
+                    </span>
+                    <span className="nav-arrow">→</span>
+                  </NavLink>
+                </li>
+              ))}
+          </ul>
+        </nav>
         {/* Actions rapides (desktop uniquement) */}
         <Box 
           sx={{ 
@@ -94,6 +133,7 @@ export default function Header() {
               {/* Bouton Notifications */}
               <Tooltip title="Notifications">
                 <IconButton
+                  onClick={handleNotifClick}
                   sx={{
                     color: muiTheme.palette.text.primary,
                     border: `2px solid ${muiTheme.palette.divider}`,
@@ -107,11 +147,46 @@ export default function Header() {
                     },
                   }}
                 >
-                  <Badge badgeContent={3} color="error">
+                  <Badge badgeContent={notifications?.length || 0} color="error">
                     <NotificationsIcon fontSize="small" />
                   </Badge>
                 </IconButton>
               </Tooltip>
+              <Menu
+                anchorEl={notifAnchorEl}
+                open={notifOpen}
+                onClose={handleNotifClose}
+                PaperProps={{ sx: { minWidth: 320, maxWidth: 400 } }}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+              >
+                <MenuItem disabled divider>
+                  <Typography variant="subtitle1" fontWeight={700}>
+                    Notifications
+                  </Typography>
+                </MenuItem>
+                {notifLoading && (
+                  <MenuItem disabled>Chargement...</MenuItem>
+                )}
+                {notifError && (
+                  <MenuItem disabled>Erreur: {notifError}</MenuItem>
+                )}
+                {(!notifLoading && notifications?.length === 0) && (
+                  <MenuItem disabled>
+                    <Typography variant="body2" color="text.secondary">
+                      Aucune notification à afficher.
+                    </Typography>
+                  </MenuItem>
+                )}
+                {notifications?.map((notif, idx) => (
+                  <MenuItem key={notif._id || idx} divider={idx < notifications.length - 1} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography variant="body2" sx={{ flex: 1 }}>{notif.message || notif.text || JSON.stringify(notif)}</Typography>
+                    <IconButton size="small" color="error" onClick={() => handleDeleteNotif(notif._id)} aria-label="Supprimer" sx={{ ml: 1 }}>
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
+                  </MenuItem>
+                ))}
+              </Menu>
 
               {/* Bouton Toggle Thème */}
               <Tooltip title={themeMode === 'dark' ? 'Mode clair' : 'Mode sombre'}>
@@ -148,56 +223,9 @@ export default function Header() {
                   opacity: 0.6 
                 }} 
               />
-            </>
-          )}
-        </Box>
 
-        {/* Toggle Menu Mobile */}
-        <Tooltip title={isMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}>
-          <IconButton 
-            className="menu-toggle-icon" 
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            sx={{
-              display: { xs: 'flex', md: 'none' },
-              color: muiTheme.palette.text.primary,
-            }}
-          >
-            {isMenuOpen ? <CloseIcon /> : <MenuIcon />}
-          </IconButton>
-        </Tooltip>
-
-        {/* Navigation */}
-        <nav className={`nav ${isMenuOpen ? 'open' : ''}`} style={{ backgroundColor: muiTheme.palette.background.paper }}>
-          <ul className="nav-list">
-            {menuItems.map((item) => (
-              <li key={item.id} className="nav-item">
-                <NavLink
-                  to={item.path}
-                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                  onClick={() => setIsMenuOpen(false)}
-                  style={{
-                    '--color': item.color,
-                    color: muiTheme.palette.text.primary,
-                    borderColor: muiTheme.palette.divider,
-                    backgroundColor: muiTheme.palette.background.paper,
-                  }}
-                >
-                  <span className="nav-icon">{item.icon}</span>
-                  <span className="nav-text">
-                    <span className="nav-label">{item.label}</span>
-                    <span className="nav-description">{item.description}</span>
-                  </span>
-                  <span className="nav-arrow">→</span>
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-
-          {/* Barre d'authentification */}
-          <div className="auth-bar">
-            {isAuthenticated ? (
+              {/* Menu utilisateur (avatar, paramètres, déconnexion) pour tout utilisateur connecté */}
               <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                {/* Menu utilisateur avec Avatar */}
                 <Tooltip title={user?.username || 'Profil'}>
                   <IconButton
                     onClick={handleSettingsClick}
@@ -215,8 +243,8 @@ export default function Header() {
                   >
                     <Avatar
                       sx={{
-                        width: 40,
-                        height: 40,
+                        width: 32,
+                        height: 32,
                         bgcolor: muiTheme.palette.primary.main,
                         fontSize: '0.95rem',
                         fontWeight: 600,
@@ -226,7 +254,6 @@ export default function Header() {
                     </Avatar>
                   </IconButton>
                 </Tooltip>
-
                 <Menu
                   anchorEl={anchorEl}
                   open={Boolean(anchorEl)}
@@ -234,7 +261,7 @@ export default function Header() {
                   PaperProps={{
                     elevation: 4,
                     sx: {
-                      minWidth: 300,
+                      minWidth: 220,
                       mt: 1.5,
                       borderRadius: 3,
                       overflow: 'visible',
@@ -256,11 +283,11 @@ export default function Header() {
                   transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                   anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                 >
-                  {/* En-tête du profil amélioré */}
+                  {/* En-tête du profil */}
                   <Box 
                     sx={{ 
-                      px: 2.5, 
-                      py: 2.5, 
+                      px: 2, 
+                      py: 2, 
                       borderBottom: `1px solid ${muiTheme.palette.divider}`,
                       background: `linear-gradient(135deg, ${muiTheme.palette.primary.main}10 0%, ${muiTheme.palette.primary.main}05 100%)`,
                     }}
@@ -268,10 +295,10 @@ export default function Header() {
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
                       <Avatar
                         sx={{
-                          width: 50,
-                          height: 50,
+                          width: 38,
+                          height: 38,
                           bgcolor: muiTheme.palette.primary.main,
-                          fontSize: '1.2rem',
+                          fontSize: '1.1rem',
                           fontWeight: 600,
                           boxShadow: `0 4px 12px ${muiTheme.palette.primary.main}40`,
                         }}
@@ -289,9 +316,9 @@ export default function Header() {
                     </Box>
                     <Box 
                       sx={{ 
-                        mt: 1.5, 
-                        px: 1.5, 
-                        py: 0.75, 
+                        mt: 1, 
+                        px: 1, 
+                        py: 0.5, 
                         bgcolor: muiTheme.palette.primary.main,
                         color: 'white',
                         borderRadius: 2,
@@ -305,14 +332,13 @@ export default function Header() {
                       </Typography>
                     </Box>
                   </Box>
-                  
                   {/* Options du menu */}
                   <Box sx={{ py: 1 }}>
                     <MenuItem 
                       onClick={handleNavigateToSettings} 
                       sx={{ 
-                        py: 1.5, 
-                        px: 2.5,
+                        py: 1.2, 
+                        px: 2,
                         mx: 1,
                         borderRadius: 2,
                         gap: 2,
@@ -330,12 +356,11 @@ export default function Header() {
                         primaryTypographyProps={{ fontWeight: 600 }}
                       />
                     </MenuItem>
-                    
                     <MenuItem 
                       onClick={handleThemeToggle} 
                       sx={{ 
-                        py: 1.5, 
-                        px: 2.5,
+                        py: 1.2, 
+                        px: 2,
                         mx: 1,
                         borderRadius: 2,
                         gap: 2,
@@ -358,16 +383,14 @@ export default function Header() {
                       />
                     </MenuItem>
                   </Box>
-                  
                   <Divider sx={{ my: 1 }} />
-                  
                   {/* Déconnexion */}
                   <Box sx={{ px: 1, pb: 1 }}>
                     <MenuItem 
                       onClick={handleLogout} 
                       sx={{ 
-                        py: 1.5, 
-                        px: 2.5,
+                        py: 1.2, 
+                        px: 2,
                         borderRadius: 2,
                         gap: 2,
                         color: 'error.main',
@@ -387,21 +410,11 @@ export default function Header() {
                   </Box>
                 </Menu>
               </Box>
-            ) : (
-              <button
-                className="login-btn"
-                onClick={() => navigate('/login')}
-                style={{
-                  background: muiTheme.palette.primary.main,
-                  color: muiTheme.palette.primary.contrastText,
-                }}
-              >
-                Se connecter
-              </button>
-            )}
-          </div>
-        </nav>
+            </>
+          )}
+        </Box>
       </div>
     </header>
   );
 }
+

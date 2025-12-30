@@ -1,292 +1,113 @@
-/* Header Styles - Professional Layout */
-.Header {
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
+/* Section Navigation centrale */
 .header-container {
   max-width: 100%;
   margin: 0 auto;
-  padding: 12px 20px;
+  padding: 0 6px;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
+  min-height: 40px;
+  flex-wrap: nowrap;
+  flex-direction: row;
+  justify-content: flex-start;
+  overflow-x: auto;
+  white-space: nowrap;
+  height: 56px;
+  box-sizing: border-box;
 }
-
-/* Section Logo + Titre (gauche) */
 .brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   flex-shrink: 0;
-  min-width: 200px;
-}
-
-.logo {
-  width: 40px;
-  height: auto;
-}
-
-.brand-text h1 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1.3;
+  min-width: 120px;
   white-space: nowrap;
-  color: #0f172a;
+  height: 100%;
 }
-
-.brand-text p {
-  margin: 0;
-  font-size: 11px;
-  color: #64748b;
-  line-height: 1.2;
-}
-
-.menu-toggle {
-  display: none;
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-}
-
-/* Section Navigation centrale */
 .nav {
   display: flex;
   align-items: center;
-  gap: 12px;
-  flex: 1;
-  justify-content: center;
+  flex: 1; /* Prend tout l'espace disponible au centre */
+  min-width: 0; /* Important pour le scroll horizontal interne */
+  height: 100%;
 }
-
-.nav-list {
-  display: flex;
-  flex-wrap: nowrap;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  gap: 10px;
-  overflow-x: auto;
-  scrollbar-width: thin;
-}
-
-.nav-item {
-  list-style: none;
-  flex: 0 0 auto;
-}
-
-.nav-link {
-  background: #ffffff;
-  border: 2px solid #e2e8f0;
-  padding: 10px 14px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.25s ease;
-  color: #0f172a;
-  white-space: nowrap;
-  text-decoration: none;
-}
-
-.nav-link:hover {
-  border-color: var(--color, #2563eb);
-  color: var(--color, #2563eb);
-  background-color: rgba(37, 99, 235, 0.05);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
-}
-
-.nav-link.active {
-  background: linear-gradient(135deg, var(--color, #2563eb) 0%, rgba(37, 99, 235, 0.8) 100%);
-  color: #ffffff;
-  border-color: var(--color, #2563eb);
-  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.3);
-}
-
-.nav-icon {
-  font-size: 18px;
-  flex-shrink: 0;
-}
-
-.nav-text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.nav-label {
-  font-weight: 700;
-  font-size: 14px;
-}
-
-/* User Section */
 .user-section {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-left: 16px;
   padding-left: 16px;
-  border-left: 2px solid #e2e8f0;
+  border-left: 1.5px solid #e2e8f0;
+  flex-shrink: 0; /* Reste toujours à droite */
+  height: 100%;
+}
+/* Section Navigation centrale */
+.nav {
+  display: flex;
+  align-items: center;
+  flex: 1; /* Prend tout l'espace disponible au centre */
+  min-width: 0; /* Important pour le scroll horizontal interne */
 }
 
-.user-info {
-  font-size: 14px;
-  color: #0f172a;
+.nav-list {
+  display: flex;
+  flex-direction: row;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 10px;
+  overflow-x: auto; /* Permet le défilement si trop de liens */
+  scrollbar-width: none; /* Cache la barre sur Firefox */
+}
+
+.nav-list::-webkit-scrollbar {
+  display: none; /* Cache la barre sur Chrome/Safari */
+}
+
+.nav-item {
+  flex: 0 0 auto;
+}
+
+.nav-link {
+  background: #fff;
+  border: 1.5px solid #e2e8f0;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #0f172a;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+/* Section Utilisateur / Actions (droite) */
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-left: 16px;
+  border-left: 1.5px solid #e2e8f0;
+  flex-shrink: 0; /* Reste toujours à droite */
 }
 
 .logout-btn {
   background: #ef4444;
   color: white;
   border: none;
-  padding: 8px 16px;
+  padding: 6px 12px;
   border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 12px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 6px;
 }
 
-.logout-btn:hover {
-  background: #dc2626;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
-}
-
-.logout-btn:active {
-  transform: translateY(0);
-}
-
-.nav-description {
-  font-size: 11px;
-  opacity: 0.75;
-  font-weight: 400;
-}
-
-.nav-arrow {
-  margin-left: auto;
-  font-size: 16px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  flex-shrink: 0;
-}
-
-.nav-link:hover .nav-arrow,
-.nav-link.active .nav-arrow {
-  opacity: 1;
-}
-
-/* Actions droite (2 boutons + profil) */
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-}
-
-.auth-bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-}
-
-.theme-toggle {
-  border: 1px solid #e2e8f0;
-  background: #fff;
-  color: #0f172a;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.theme-toggle:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
-}
-
-.login-btn {
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.login-btn:hover {
-  filter: brightness(1.05);
-  transform: translateY(-1px);
-}
-
-@media (max-width: 900px) {
-  .menu-toggle {
-    display: block;
+/* Responsive Mobile */
+@media (max-width: 768px) {
+  .brand-text {
+    display: none; /* Cache le texte sur mobile pour laisser la place au menu */
   }
-
-  /* Réduire encore l'encombrement à gauche en mobile/tablette */
-  .brand-text p {
-    display: none;
-  }
-  .brand-text h1 {
-    font-size: 14px;
-  }
-
-  .nav {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: #ffffff;
-    border-bottom: 1px solid #e2e8f0;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease;
-  }
-
-  .nav.open {
-    max-height: 70vh;
-    overflow-y: auto;
-  }
-
-  .nav-list {
-    display: flex;
-    flex-wrap: nowrap;
-    padding: 8px;
-    gap: 6px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .nav-link {
-    width: auto;
-    padding: 8px 10px;
-  }
-
-  .header-actions {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 12px;
-    margin-left: 0;
-    gap: 10px;
-  }
-
-  .auth-bar {
-    padding: 12px;
+  .header-container {
     gap: 10px;
   }
 }

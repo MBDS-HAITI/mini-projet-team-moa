@@ -48,8 +48,11 @@ function Dashboard() {
   const maxCount = Math.max(...gradesByCourse.map((g) => g.count || 0), 1);
   const maxAvg = Math.max(...gradesByCourse.map((g) => g.avgGrade || 0), 20);
 
+
+
   return (
     <main className="dashboard-shell">
+      {/* Menu Title Section */}
       <div className="dash-hero">
         <div className="dash-hero-card">
           <p className="hero-kicker">Tableau de bord</p>
@@ -66,31 +69,32 @@ function Dashboard() {
             <span className="pill">Données live</span>
           </div>
         </div>
+      </div>
 
-        <div className="dash-summary">
-          <div className="metric-grid">
-            {role === 'admin' && (
-              <div className="metric-card" style={{ borderLeft: '5px solid #f59e0b' }}>
-                <div className="metric-label">Utilisateurs</div>
-                <div className="metric-value" style={{ color: '#f59e0b' }}>{stats?.totalUsers || 0}</div>
-                <div className="stat-hint">Accès et rôles</div>
-              </div>
-            )}
-            <div className="metric-card" style={{ borderLeft: '5px solid #2563eb' }}>
-              <div className="metric-label">Étudiants</div>
-              <div className="metric-value" style={{ color: '#2563eb' }}>{stats?.totalStudents || 0}</div>
-              <div className="stat-hint">Dossiers actifs</div>
+      {/* Submenu/Statistics Section - visually below the title */}
+      <div className="dash-summary" style={{ marginTop: 24 }}>
+        <div className="metric-grid">
+          {role === 'admin' && (
+            <div className="metric-card" style={{ borderLeft: '5px solid #f59e0b' }}>
+              <div className="metric-label">Utilisateurs</div>
+              <div className="metric-value" style={{ color: '#f59e0b' }}>{stats?.totalUsers || 0}</div>
+              <div className="stat-hint">Accès et rôles</div>
             </div>
-            <div className="metric-card" style={{ borderLeft: '5px solid #10b981' }}>
-              <div className="metric-label">Cours</div>
-              <div className="metric-value" style={{ color: '#10b981' }}>{stats?.totalCourses || 0}</div>
-              <div className="stat-hint">Catalogue</div>
-            </div>
-            <div className="metric-card" style={{ borderLeft: '5px solid #8b5cf6' }}>
-              <div className="metric-label">Notes</div>
-              <div className="metric-value" style={{ color: '#8b5cf6' }}>{stats?.totalGrades || 0}</div>
-              <div className="stat-hint">Évaluations</div>
-            </div>
+          )}
+          <div className="metric-card" style={{ borderLeft: '5px solid #2563eb' }}>
+            <div className="metric-label">Étudiants</div>
+            <div className="metric-value" style={{ color: '#2563eb' }}>{stats?.totalStudents || 0}</div>
+            <div className="stat-hint">Dossiers actifs</div>
+          </div>
+          <div className="metric-card" style={{ borderLeft: '5px solid #10b981' }}>
+            <div className="metric-label">Cours</div>
+            <div className="metric-value" style={{ color: '#10b981' }}>{stats?.totalCourses || 0}</div>
+            <div className="stat-hint">Catalogue</div>
+          </div>
+          <div className="metric-card" style={{ borderLeft: '5px solid #8b5cf6' }}>
+            <div className="metric-label">Notes</div>
+            <div className="metric-value" style={{ color: '#8b5cf6' }}>{stats?.totalGrades || 0}</div>
+            <div className="stat-hint">Évaluations</div>
           </div>
         </div>
       </div>
@@ -117,24 +121,30 @@ function Dashboard() {
             {gradesByCourse.length === 0 ? (
               <p style={{ color: '#6b7280' }}>Aucune note encore enregistrée.</p>
             ) : (
-              <div className="chart-row">
-                {gradesByCourse.map((item, idx) => (
-                  <div key={idx}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <h3>{item.courseName}</h3>
-                      <span style={{ color: '#6b7280' }}>{item.count} notes · moy {item.avgGrade}</span>
+              <>
+                <div className="chart-row">
+                  {gradesByCourse.map((item, idx) => (
+                    <div key={idx}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <h3>{item.courseName}</h3>
+                        <span style={{ color: '#6b7280' }}>{item.count} notes · moy {item.avgGrade}</span>
+                      </div>
+                      <div className="chart-bar-track">
+                        <div className="chart-bar-fill" style={{ '--w': `${Math.max(8, (item.count / maxCount) * 100)}%` }} />
+                        <div
+                          className="chart-bar-marker"
+                          style={{ left: `${Math.max(0, (item.avgGrade / maxAvg) * 100)}%` }}
+                          title={`Moyenne ${item.avgGrade}`}
+                        />
+                      </div>
                     </div>
-                    <div className="chart-bar-track">
-                      <div className="chart-bar-fill" style={{ '--w': `${Math.max(8, (item.count / maxCount) * 100)}%` }} />
-                      <div
-                        className="chart-bar-marker"
-                        style={{ left: `${Math.max(0, (item.avgGrade / maxAvg) * 100)}%` }}
-                        title={`Moyenne ${item.avgGrade}`}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+                <div className="chart-legend">
+                  <span><span style={{display:'inline-block',width:18,height:12,background:'linear-gradient(90deg,#2563eb,#8b5cf6)',borderRadius:6,marginRight:6,verticalAlign:'middle'}}></span>Nombre de notes</span>
+                  <span><span style={{display:'inline-block',width:10,height:18,background:'#f59e0b',borderRadius:3,marginRight:6,verticalAlign:'middle'}}></span>Moyenne</span>
+                </div>
+              </>
             )}
           </section>
         </>

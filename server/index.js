@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 8010;
 
 // Autoriser le frontend Vite (localhost:5173) via CORS
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: ['http://localhost:5177'],
   credentials: true
 }));
 app.use(express.json());

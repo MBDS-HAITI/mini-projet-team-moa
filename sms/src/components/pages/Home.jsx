@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -11,202 +11,148 @@ import {
   Typography,
   useTheme,
   alpha,
+  Chip,
 } from '@mui/material';
-import { Chip } from '@mui/material';
-import {
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
-  Cell,
-  
-  ScatterChart,
-  Scatter,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts';
-import { useStudents, useCourses, useGrades, useUsers } from '../../hooks/useApi';
 import { useAuth } from '../../context/AuthContext';
+import { useStudents, useCourses, useGrades, useUsers } from '../../hooks/useApi';
+import StatCard from '../StatCard';
+import QuickActionCard from '../QuickActionCard';
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend, LineChart, Line, CartesianGrid, XAxis, YAxis, ScatterChart, Scatter } from 'recharts';
+import VerticalProgress from '../VerticalProgress';
+// ...imports...
 
-function StatCard({ label, value, hint, color, icon }) {
-  const theme = useTheme();
-  return (
-    <Card
-      sx={{
-        background: alpha(color, 0.08),
-        border: `1px solid ${alpha(color, 0.2)}`,
-        borderLeft: `5px solid ${color}`,
-        textAlign: 'center',
-        transition: 'all 0.3s ease',
-        '&:hover': {
-          transform: 'translateY(-4px)',
-          boxShadow: `0 12px 24px ${alpha(color, 0.25)}`,
-        },
-      }}
-    >
-      <CardContent sx={{ py: 3 }}>
-        <Typography sx={{ fontSize: 32, mb: 1 }}>{icon}</Typography>
-        <Typography variant="caption" sx={{ color: theme.palette.text.secondary, display: 'block' }}>
-          {label}
-        </Typography>
-        <Typography
-          variant="h4"
-          sx={{ color, fontWeight: 800, my: 1 }}
-        >
-          {value}
-        </Typography>
-        <Typography variant="caption" sx={{ color: theme.palette.text.secondary }}>
-          {hint}
-        </Typography>
-      </CardContent>
-    </Card>
-  );
-}
 
-function QuickActionCard({ title, description, icon, color, onClick }) {
-  const theme = useTheme();
-  return (
-    <Card
-      onClick={onClick}
-      sx={{
-        cursor: 'pointer',
-        transition: 'all 0.3s ease',
-        border: `1px solid ${theme.palette.divider}`,
-        '&:hover': {
-          transform: 'translateY(-6px)',
-          boxShadow: theme.shadows[8],
-          borderColor: color,
-        },
-      }}
-    >
-      <CardContent sx={{ textAlign: 'center', py: 3 }}>
-        <Typography sx={{ fontSize: 32, mb: 1 }}>{icon}</Typography>
-        <Typography variant="h6" sx={{ mb: 0.5, fontWeight: 700 }}>
-          {title}
-        </Typography>
-        <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
-          {description}
-        </Typography>
-      </CardContent>
-    </Card>
-  );
-}
-
-function VerticalProgress({ value, color }) {
-  const v = Math.max(0, Math.min(100, value || 0));
-  return (
-    <Box
-      sx={{
-        height: 180,
-        width: 14,
-        borderRadius: 1,
-        backgroundColor: alpha(color, 0.15),
-        position: 'relative',
-        overflow: 'hidden',
-        border: (theme) => `1px solid ${alpha(theme.palette.divider, 0.6)}`,
-      }}
-    >
-      <Box
-        sx={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: `${v}%`,
-          backgroundColor: color,
-        }}
-      />
-    </Box>
-  );
-}
 
 export default function Home() {
-  const navigate = useNavigate();
   const theme = useTheme();
   const { user } = useAuth();
   const role = user?.role || 'student';
-
-  const canManageUsers = role === 'admin';
-  const canManageStudents = role === 'admin' || role === 'scolarite';
-  const canManageCourses = role === 'admin' || role === 'scolarite';
-  const canManageGrades = role === 'admin' || role === 'scolarite' || role === 'student';
-
   const { data: students } = useStudents();
   const { data: courses } = useCourses();
   const { data: grades } = useGrades();
-  const { data: users } = useUsers(canManageUsers);
-
-  const stats = useMemo(() => {
-    const base = [
-      { label: 'Étudiants', value: students?.length ?? 0, hint: 'Inscrits', icon: '👥', color: theme.palette.primary.main, visible: canManageStudents },
-      { label: 'Cours', value: courses?.length ?? 0, hint: 'Actifs', icon: '📚', color: theme.palette.info.main, visible: canManageCourses },
-      { label: 'Notes', value: grades?.length ?? 0, hint: 'Enregistrées', icon: '📊', color: theme.palette.success.main, visible: canManageGrades },
-    ];
-
-    if (canManageUsers) {
-      base.splice(2, 0, { label: 'Utilisateurs', value: users?.length ?? 0, hint: 'Comptes', icon: '👤', color: theme.palette.warning.main, visible: true });
-    }
-
-    return base.filter((s) => s.visible !== false);
-  }, [students, courses, users, grades, canManageUsers, canManageStudents, canManageCourses, canManageGrades, theme]);
-
-  // Données pour graphiques
+  // Distribution des notes pour le PieChart
   const gradeDistribution = useMemo(() => {
     if (!grades || grades.length === 0) return [];
-    const ranges = { 'A (90-100)': 0, 'B (80-89)': 0, 'C (70-79)': 0, 'D (60-69)': 0, 'F (<60)': 0 };
-    grades.forEach((g) => {
-      const score = g.grade || 0;
-      if (score >= 90) ranges['A (90-100)']++;
-      else if (score >= 80) ranges['B (80-89)']++;
-      else if (score >= 70) ranges['C (70-79)']++;
-      else if (score >= 60) ranges['D (60-69)']++;
-      else ranges['F (<60)']++;
-    });
-    return Object.entries(ranges).map(([label, value]) => ({ name: label, value }));
+    // Grouper les notes par tranches (0-9, 10-11, 12-13, 14-15, 16-17, 18-20)
+    const ranges = [
+      { name: '0-9', min: 0, max: 9 },
+      { name: '10-11', min: 10, max: 11 },
+      { name: '12-13', min: 12, max: 13 },
+      { name: '14-15', min: 14, max: 15 },
+      { name: '16-17', min: 16, max: 17 },
+      { name: '18-20', min: 18, max: 20 },
+    ];
+    return ranges.map(r => ({
+      name: r.name,
+      value: grades.filter(g => g.grade >= r.min && g.grade <= r.max).length,
+    })).filter(d => d.value > 0);
   }, [grades]);
-
-  const courseStats = useMemo(() => {
-    if (!grades || !courses || grades.length === 0) return [];
-    const stats = {};
-    grades.forEach((g) => {
-      if (!stats[g.course]) stats[g.course] = { count: 0, total: 0 };
-      stats[g.course].count++;
-      stats[g.course].total += g.grade || 0;
-    });
-    return Object.entries(stats).map(([course, { count, total }]) => ({
-      name: course,
-      average: Math.round(total / count),
-      count,
-    }));
-  }, [grades, courses]);
-
+  // Données pour la croissance des inscriptions (exemple simple, à adapter selon vos données réelles)
   const studentGrowth = useMemo(() => {
-    if (!students || students.length === 0) return [];
-    const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'];
-    return months.map((month, i) => ({
-      name: month,
-      inscriptions: Math.floor((students.length / months.length) * (i + 1)) + Math.floor(Math.random() * 3),
+    if (!students) return [];
+    // Exemple : regrouper par année d'inscription si disponible, sinon par index
+    // Remplacer par la vraie logique selon votre modèle de données
+    return students.map((s, idx) => ({
+      name: s.year || `Étudiant ${idx + 1}`,
+      inscriptions: 1,
     }));
   }, [students]);
 
+  // Actions rapides pour la section "Actions Rapides"
   const quickActions = [
-    canManageUsers && { title: 'Nouv. Utilisateur', description: 'Ajouter un compte', to: '/users', icon: '👤', color: theme.palette.warning.main },
-    canManageStudents && { title: 'Inscrire Étudiant', description: 'Dossier complet', to: '/students', icon: '🎓', color: theme.palette.primary.main },
-    canManageCourses && { title: 'Planifier Cours', description: 'Configurer matières', to: '/courses', icon: '📚', color: theme.palette.info.main },
-    canManageGrades && { title: 'Saisir Notes', description: 'Résultats & suivi', to: '/grades', icon: '📊', color: theme.palette.success.main },
-  ].filter(Boolean);
+    {
+      title: 'Voir les étudiants',
+      description: 'Gérer les dossiers étudiants',
+      icon: '🎓',
+      color: theme.palette.primary.main,
+      to: '/students',
+    },
+    {
+      title: 'Voir les cours',
+      description: 'Consulter le catalogue de cours',
+      icon: '📚',
+      color: theme.palette.info.main,
+      to: '/courses',
+    },
+    {
+      title: 'Voir les notes',
+      description: 'Consulter et saisir les notes',
+      icon: '📝',
+      color: theme.palette.success.main,
+      to: '/grades',
+    },
+    {
+      title: 'Utilisateurs',
+      description: 'Gérer les comptes utilisateurs',
+      icon: '👤',
+      color: theme.palette.warning.main,
+      to: '/users',
+    },
+  ];
+  const { data: users } = useUsers();
 
+  // Calcul des statistiques par cours pour les graphiques
+  const courseStats = useMemo(() => {
+    if (!courses || !grades) return [];
+    // Pour chaque cours, calculer la moyenne et le nombre d'étudiants ayant une note
+    return courses.map(course => {
+      const courseGrades = grades.filter(g => g.course === course.id || g.course === course._id);
+      const average = courseGrades.length > 0
+        ? Math.round(courseGrades.reduce((sum, g) => sum + (g.grade || 0), 0) / courseGrades.length)
+        : 0;
+      return {
+        name: course.name,
+        average,
+        count: courseGrades.length,
+      };
+    });
+  }, [courses, grades]);
+
+  const stats = useMemo(() => {
+    const base = [
+      { label: 'Étudiants', value: students?.length ?? 0, hint: 'Dossiers', icon: '🎓', color: theme.palette.primary.main },
+      { label: 'Cours', value: courses?.length ?? 0, hint: 'Catalogue', icon: '📚', color: theme.palette.info.main },
+      { label: 'Notes', value: grades?.length ?? 0, hint: 'Résultats', icon: '📝', color: theme.palette.success.main },
+    ];
+    if (role === 'admin') {
+      base.splice(2, 0, { label: 'Utilisateurs', value: users?.length ?? 0, hint: 'Comptes', icon: '👤', color: theme.palette.warning.main });
+    }
+    return base;
+  }, [students, courses, grades, users, role, theme.palette]);
+
+  // COLORS et chartCards doivent être définis avant le return !
   const COLORS = [theme.palette.primary.main, theme.palette.info.main, theme.palette.success.main, theme.palette.warning.main, theme.palette.error.main];
 
   const chartCards = [
     grades && grades.length > 0 && {
       key: 'grades',
       content: (
-        <Card sx={{ height: '100%' }}>
+        <Card
+          sx={theme => ({
+            width: 420,
+            minWidth: 420,
+            maxWidth: 420,
+            height: 420,
+            minHeight: 420,
+            maxHeight: 420,
+            background: theme.palette.mode === 'dark' ? '#181f2a' : '#fff',
+            color: theme.palette.mode === 'dark' ? '#f1f5f9' : 'inherit',
+            boxShadow: theme.palette.mode === 'dark'
+              ? '0 16px 40px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.18)'
+              : '0 12px 32px rgba(15,23,42,0.10), 0 1.5px 4px rgba(15,23,42,0.08)',
+            borderRadius: 2,
+            border: theme.palette.mode === 'dark' ? '1.5px solid #232b3b' : '1px solid #e2e8f0',
+            transition: 'all 0.3s',
+            display: 'flex',
+            flexDirection: 'column',
+            '&:hover': {
+              boxShadow: theme.palette.mode === 'dark'
+                ? '0 24px 56px rgba(0,0,0,0.55), 0 4px 12px rgba(0,0,0,0.22)'
+                : '0 18px 40px rgba(15,23,42,0.13), 0 2px 8px rgba(15,23,42,0.10)',
+              transform: 'translateY(-4px) scale(1.03)',
+            },
+          })}
+        >
           <Box sx={{ px: 2, pt: 2 }}>
             <Typography variant="overline" sx={{ color: theme.palette.text.secondary }}>
                Tableau des beignets
@@ -222,8 +168,8 @@ export default function Home() {
                   cy="50%"
                   labelLine={false}
                   label={({ name, value }) => `${name}: ${value}`}
-                  outerRadius={120}
-                  innerRadius={70}
+                  outerRadius={90}
+                  innerRadius={54}
                   dataKey="value"
                   labelStyle={{ fontSize: 18, fontWeight: 700, fill: theme.palette.text.primary }}
                 >
@@ -232,6 +178,7 @@ export default function Home() {
                   ))}
                 </Pie>
                 <Tooltip contentStyle={{ fontSize: 18, color: theme.palette.text.primary, fontWeight: 600 }} />
+                <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: 16, fontWeight: 600, marginTop: 36 }} />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
@@ -241,7 +188,27 @@ export default function Home() {
     students && students.length > 0 && {
       key: 'students',
       content: (
-        <Card sx={{ height: '100%' }}>
+        <Card
+          sx={theme => ({
+            height: '100%',
+               background: theme.palette.mode === 'dark' ? '#181f2a' : '#fff',
+               color: theme.palette.mode === 'dark' ? '#f1f5f9' : 'inherit',
+               boxShadow: theme.palette.mode === 'dark'
+                 ? '0 16px 40px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.18)'
+                 : '0 12px 32px rgba(15,23,42,0.10), 0 1.5px 4px rgba(15,23,42,0.08)',
+               borderRadius: 2,
+               border: theme.palette.mode === 'dark' ? '1.5px solid #232b3b' : '1px solid #e2e8f0',
+               transition: 'all 0.3s',
+               display: 'flex',
+               flexDirection: 'column',
+               '&:hover': {
+                 boxShadow: theme.palette.mode === 'dark'
+                   ? '0 24px 56px rgba(0,0,0,0.55), 0 4px 12px rgba(0,0,0,0.22)'
+                   : '0 18px 40px rgba(15,23,42,0.13), 0 2px 8px rgba(15,23,42,0.10)',
+                 transform: 'translateY(-4px) scale(1.03)',
+               },
+          })}
+        >
           <Box sx={{ px: 2, pt: 2 }}>
             <Typography variant="overline" sx={{ color: theme.palette.text.secondary }}>
               Courbes
@@ -263,6 +230,7 @@ export default function Home() {
                   dot={{ fill: theme.palette.primary.main, r: 5 }}
                   activeDot={{ r: 7 }}
                 />
+                <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: 16, fontWeight: 600, marginTop: 36 }} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -272,7 +240,25 @@ export default function Home() {
     courseStats.length > 0 && {
       key: 'course-progress',
       content: (
-        <Card sx={{ height: '100%' }}>
+        <Card
+          sx={theme => ({
+            height: '100%',
+            background: theme.palette.mode === 'dark' ? '#181f2a' : '#fff',
+            color: theme.palette.mode === 'dark' ? '#f1f5f9' : 'inherit',
+            boxShadow: theme.palette.mode === 'dark'
+              ? '0 16px 40px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.18)'
+              : '0 12px 32px rgba(15,23,42,0.10), 0 1.5px 4px rgba(15,23,42,0.08)',
+            borderRadius: 2,
+            border: theme.palette.mode === 'dark' ? '1.5px solid #232b3b' : '1px solid #e2e8f0',
+            transition: 'all 0.3s',
+            '&:hover': {
+              boxShadow: theme.palette.mode === 'dark'
+                ? '0 24px 56px rgba(0,0,0,0.55), 0 4px 12px rgba(0,0,0,0.22)'
+                : '0 18px 40px rgba(15,23,42,0.13), 0 2px 8px rgba(15,23,42,0.10)',
+              transform: 'translateY(-4px) scale(1.03)',
+            },
+          })}
+        >
           <Box sx={{ px: 2, pt: 2 }}>
             <Typography variant="overline" sx={{ color: theme.palette.text.secondary }}>
               Barre de progression verticale
@@ -300,7 +286,25 @@ export default function Home() {
     courseStats.length > 0 && {
       key: 'course-scatter',
       content: (
-        <Card sx={{ height: '100%' }}>
+        <Card
+          sx={theme => ({
+            height: '100%',
+            background: theme.palette.mode === 'dark' ? '#181f2a' : '#fff',
+            color: theme.palette.mode === 'dark' ? '#f1f5f9' : 'inherit',
+            boxShadow: theme.palette.mode === 'dark'
+              ? '0 16px 40px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.18)'
+              : '0 12px 32px rgba(15,23,42,0.10), 0 1.5px 4px rgba(15,23,42,0.08)',
+            borderRadius: 2,
+            border: theme.palette.mode === 'dark' ? '1.5px solid #232b3b' : '1px solid #e2e8f0',
+            transition: 'all 0.3s',
+            '&:hover': {
+              boxShadow: theme.palette.mode === 'dark'
+                ? '0 24px 56px rgba(0,0,0,0.55), 0 4px 12px rgba(0,0,0,0.22)'
+                : '0 18px 40px rgba(15,23,42,0.13), 0 2px 8px rgba(15,23,42,0.10)',
+              transform: 'translateY(-4px) scale(1.03)',
+            },
+          })}
+        >
           <Box sx={{ px: 2, pt: 2 }}>
             <Typography variant="overline" sx={{ color: theme.palette.text.secondary }}>
               Nuage de points
@@ -315,6 +319,7 @@ export default function Home() {
                 <YAxis type="number" dataKey="count" name="Étudiants" tick={{ fontSize: 18, fontWeight: 600 }} />
                 <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ fontSize: 18 }} />
                 <Scatter name="Cours" data={courseStats} fill={theme.palette.info.main} />
+                <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: 16, fontWeight: 600 }} />
               </ScatterChart>
             </ResponsiveContainer>
           </CardContent>
@@ -352,7 +357,7 @@ export default function Home() {
               Utilisateur connecté
             </Typography>
             <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              {user?.username || 'Invité'}
+              {user?.name || user?.username || 'Invité'}
             </Typography>
             <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
               Rôle : {role}
@@ -372,7 +377,19 @@ export default function Home() {
 
       {/* Charts Section */}
       {chartCards.length > 0 && (
-  <Card sx={{ mb: 4, background: theme.palette.mode === 'dark' ? '#fff' : undefined }}>
+  <Card
+    sx={theme => ({
+      mb: 4,
+      background: theme.palette.mode === 'dark' ? '#181f2a' : '#fff',
+      color: theme.palette.mode === 'dark' ? '#f1f5f9' : 'inherit',
+      boxShadow: theme.palette.mode === 'dark'
+        ? '0 16px 40px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.18)'
+        : '0 12px 32px rgba(15,23,42,0.10), 0 1.5px 4px rgba(15,23,42,0.08)',
+      borderRadius: 2,
+      border: theme.palette.mode === 'dark' ? '1.5px solid #232b3b' : '1px solid #e2e8f0',
+      transition: 'all 0.3s',
+    })}
+  >
           <CardHeader
             title="Analyses principales"
             subheader="Visualisez rapidement les tendances clés"
@@ -386,9 +403,34 @@ export default function Home() {
               <Chip label="Barre de progression" size="small" color="success" variant="outlined" />
               <Chip label="Nuage de points" size="small" color="info" variant="outlined" />
             </Box>
-            <Box sx={{ display: 'flex', flexWrap: 'nowrap', justifyContent: 'center', alignItems: 'stretch', gap: 3, width: '100%', overflowX: 'auto', pb: 2 }}>
+            <Box
+              sx={theme => ({
+                display: 'flex',
+                flexWrap: 'nowrap',
+                justifyContent: 'center',
+                alignItems: 'stretch',
+                gap: theme.palette.mode === 'light' ? 0.5 : 3,
+                width: '100%',
+                overflowX: 'auto',
+                pb: 1,
+                pl: 0,
+                pr: 0,
+                background: 'inherit',
+              })}
+            >
               {chartCards.map((chart) => (
-                <Box key={chart.key} sx={{ width: 420, minHeight: 420, display: 'flex', alignItems: 'stretch', justifyContent: 'center' }}>
+                <Box
+                  key={chart.key}
+                  sx={{
+                    width: 440,
+                    minHeight: 420,
+                    display: 'flex',
+                    alignItems: 'stretch',
+                    justifyContent: 'center',
+                    m: 0,
+                    p: 0,
+                  }}
+                >
                   {chart.content}
                 </Box>
               ))}

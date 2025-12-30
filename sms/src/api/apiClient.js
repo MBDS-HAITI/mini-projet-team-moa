@@ -7,6 +7,22 @@ const getAuthHeader = () => {
 };
 
 const apiClient = {
+  // Notifications
+  async getNotifications(userId) {
+    const url = userId ? `${API_BASE_URL}/notifications?userId=${userId}` : `${API_BASE_URL}/notifications`;
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader()
+      }
+    });
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({}));
+      throw new Error(error.error || 'Failed to fetch notifications');
+    }
+    return res.json();
+  },
   // Auth diagnostics
   async getMe() {
     const res = await fetch(`${API_BASE_URL}/users/me`, {
