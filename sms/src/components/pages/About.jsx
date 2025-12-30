@@ -1,9 +1,39 @@
-import { aproposInfo } from '../../data/index.js';
+import { useEffect, useState } from 'react';
+import apiClient from '../../api/apiClient';
+
+const CONTACT = {
+  email: 'moasolutiontech@gmail.com',
+  phone: '+509-4600-2055',
+  programmeur: 'Ing. Orelus Josselet, Ing. Michel Jasmin, Ing. Aimé Huguens',
+};
 
 export default function About() {
-  const { title, description, contact, stats } = aproposInfo;
-  const { email, phone, programmeur } = contact;
-  const { totalEtudiants, totalMatieres, totalNotes, global, parMatiere } = stats;
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    apiClient.getStats()
+      .then(setStats)
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  // Texte statique
+  const title = 'Master MBDS';
+  const description = "Gestion des Etudiants, Cours, Notes et Utilisateurs pour la Faculté des Sciences de l'Université d'Haïti.";
+  const { email, phone, programmeur } = CONTACT;
+
+  // Affichage loading/erreur
+  if (loading) return <main className="Main about-shell"><div style={{ padding: 32, textAlign: 'center' }}>Chargement des statistiques...</div></main>;
+  if (error) return <main className="Main about-shell"><div style={{ padding: 32, color: '#dc2626', textAlign: 'center' }}>Erreur : {error}</div></main>;
+  if (!stats) return null;
+
+  // Extraction des stats dynamiques
+  const totalEtudiants = stats.totalStudents || stats.totalEtudiants || 0;
+  const totalMatieres = stats.totalCourses || stats.totalMatieres || 0;
+  const totalNotes = stats.totalGrades || stats.totalNotes || 0;
+  const moyenne = stats.avgGrade || stats.global?.moyenne || stats.global || 0;
 
   return (
     <main className="Main about-shell">
@@ -54,19 +84,21 @@ export default function About() {
         </div>
         <div className="about-card">
           <div className="metric-label">Moyenne générale</div>
-          <div className="metric-value" style={{ color: '#10b981' }}>{global.moyenne}/100</div>
+          <div className="metric-value" style={{ color: '#10b981' }}>{moyenne}/100</div>
         </div>
       </section>
+
 
       <section className="about-grid">
         <article className="about-card">
           <h2 style={{ margin: 0, marginBottom: 8 }}>📈 Statistiques détaillées</h2>
           <div className="stat-stack" style={{ gap: 10 }}>
-            <div className="metric-card"><div className="metric-label">Moyenne</div><div className="metric-value">{global.moyenne}</div></div>
-            <div className="metric-card"><div className="metric-label">Maximum</div><div className="metric-value">{global.max}</div></div>
-            <div className="metric-card"><div className="metric-label">Minimum</div><div className="metric-value">{global.min}</div></div>
-            <div className="metric-card"><div className="metric-label">Médiane</div><div className="metric-value">{global.median}</div></div>
-            <div className="metric-card"><div className="metric-label">Écart-type</div><div className="metric-value">{global.standardDeviation}</div></div>
+            <div className="metric-card"><div className="metric-label">Moyenne</div><div className="metric-value">{stats.avgGrade ?? '-'}</div></div>
+            <div className="metric-card"><div className="metric-label">Maximum</div><div className="metric-value">{stats.maxGrade ?? '-'}</div></div>
+            <div className="metric-card"><div className="metric-label">Minimum</div><div className="metric-value">{stats.minGrade ?? '-'}</div></div>
+            {/* Optionnel : médiane et écart-type si présents dans l'API */}
+            {stats.median !== undefined && <div className="metric-card"><div className="metric-label">Médiane</div><div className="metric-value">{stats.median}</div></div>}
+            {stats.standardDeviation !== undefined && <div className="metric-card"><div className="metric-label">Écart-type</div><div className="metric-value">{stats.standardDeviation}</div></div>}
           </div>
         </article>
 
@@ -80,18 +112,18 @@ export default function About() {
                 <th style={{ textAlign: 'right' }}>Average</th>
                 <th style={{ textAlign: 'right' }}>Max</th>
                 <th style={{ textAlign: 'right' }}>Min</th>
-                <th style={{ textAlign: 'right' }}>Median</th>
+                {/* <th style={{ textAlign: 'right' }}>Median</th> */}
               </tr>
             </thead>
             <tbody>
-              {Object.entries(parMatiere).map(([course, { count, moyenne, max, min, median }]) => (
-                <tr key={course}>
-                  <td>{course}</td>
-                  <td style={{ textAlign: 'right' }}>{count}</td>
-                  <td style={{ textAlign: 'right' }}>{moyenne}</td>
-                  <td style={{ textAlign: 'right' }}>{max}</td>
-                  <td style={{ textAlign: 'right' }}>{min}</td>
-                  <td style={{ textAlign: 'right' }}>{median}</td>
+              {(stats.gradesByCourse || []).map((item, idx) => (
+                <tr key={item.courseName || idx}>
+                  <td>{item.courseName}</td>
+                  <td style={{ textAlign: 'right' }}>{item.count ?? '-'}</td>
+                  <td style={{ textAlign: 'right' }}>{item.avgGrade ?? '-'}</td>
+                  <td style={{ textAlign: 'right' }}>{item.maxGrade ?? '-'}</td>
+                  <td style={{ textAlign: 'right' }}>{item.minGrade ?? '-'}</td>
+                  {/* <td style={{ textAlign: 'right' }}>{item.median ?? '-'}</td> */}
                 </tr>
               ))}
             </tbody>

@@ -1,113 +1,108 @@
-/* Section Navigation centrale */
-.header-container {
-  max-width: 100%;
-  margin: 0 auto;
-  padding: 0 6px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  min-height: 40px;
-  flex-wrap: nowrap;
-  flex-direction: row;
-  justify-content: flex-start;
-  overflow-x: auto;
-  white-space: nowrap;
-  height: 56px;
-  box-sizing: border-box;
+/* ===== HEADER GLOBAL ===== */
+.Header {
+  background: linear-gradient(90deg, #f8fafc 60%, #e0e7ef 100%);
+  border-bottom: 1.5px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  width: 100%;
 }
-.brand {
+
+/* Wrapper */
+.header-wrapper {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-  min-width: 120px;
-  white-space: nowrap;
-  height: 100%;
+  flex-direction: column;
+  width: 100%;
 }
-.nav {
-  display: flex;
-  align-items: center;
-  flex: 1; /* Prend tout l'espace disponible au centre */
-  min-width: 0; /* Important pour le scroll horizontal interne */
-  height: 100%;
-}
-.user-section {
+
+/* ===== LIGNE 1 : ACTIONS (AU-DESSUS) ===== */
+.header-actions {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding-left: 16px;
-  border-left: 1.5px solid #e2e8f0;
-  flex-shrink: 0; /* Reste toujours à droite */
-  height: 100%;
+  padding: 6px 16px;
+  justify-content: flex-end;
 }
-/* Section Navigation centrale */
-.nav {
+
+/* ===== LIGNE 2 : LOGO + MENU (DESCENDU) ===== */
+.header-main {
   display: flex;
   align-items: center;
-  flex: 1; /* Prend tout l'espace disponible au centre */
-  min-width: 0; /* Important pour le scroll horizontal interne */
+  gap: 24px;
+  padding: 10px 16px 14px; /* ↓ espace en haut */
+  box-sizing: border-box;
+}
+
+/* Brand */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.logo {
+  height: 34px;
+  width: auto;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 0.75rem;
+  opacity: 0.7;
+  margin: 0;
+}
+
+/* Navigation */
+.nav {
+  flex: 1;
+  display: flex;
+  overflow-x: auto;
 }
 
 .nav-list {
   display: flex;
-  flex-direction: row;
+  align-items: center;
+  gap: 12px;
   list-style: none;
   margin: 0;
   padding: 0;
-  gap: 10px;
-  overflow-x: auto; /* Permet le défilement si trop de liens */
-  scrollbar-width: none; /* Cache la barre sur Firefox */
-}
-
-.nav-list::-webkit-scrollbar {
-  display: none; /* Cache la barre sur Chrome/Safari */
 }
 
 .nav-item {
-  flex: 0 0 auto;
+  flex-shrink: 0;
 }
 
 .nav-link {
-  background: #fff;
-  border: 1.5px solid #e2e8f0;
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #0f172a;
+  padding: 8px 12px;
+  border-radius: 10px;
   text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
   transition: all 0.2s ease;
 }
 
-/* Section Utilisateur / Actions (droite) */
-.user-section {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding-left: 16px;
-  border-left: 1.5px solid #e2e8f0;
-  flex-shrink: 0; /* Reste toujours à droite */
+.nav-link:hover {
+  background-color: rgba(0, 0, 0, 0.06);
 }
 
-.logout-btn {
-  background: #ef4444;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 12px;
-  cursor: pointer;
+.nav-link.active {
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
-/* Responsive Mobile */
-@media (max-width: 768px) {
-  .brand-text {
-    display: none; /* Cache le texte sur mobile pour laisser la place au menu */
-  }
-  .header-container {
-    gap: 10px;
-  }
+/* Cache descriptions pour menu compact */
+.nav-description {
+  display: none;
 }
